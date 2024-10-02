@@ -1,0 +1,21 @@
+{
+  "name": "be_salemanagement",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Sale Management",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "Nodejs",
+    "Express"
+  ],
+  "author": "Hvd75",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0"
+  }
+}
