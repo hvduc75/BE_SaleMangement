@@ -67,7 +67,7 @@ const createNewUser = async (data) => {
 const getAllUser = async () => {
   try {
     let users = await db.User.findAll({
-      attributes: ["id", "username", "email", "phone", "address"],
+      attributes: ["id", "username", "email", "phone", "address",],
       include: {model: db.Group, attributes: ["name", "description"]}
     })
     if(users) {
@@ -99,7 +99,7 @@ const getUserWithPagination = async (page, limit) => {
     const { count, rows } = await db.User.findAndCountAll({
       offset: offset,
       limit: limit,
-      attributes: ["id", "username", "email", "phone", "address"],
+      attributes: ["id", "username", "email", "groupId", "address", "avatar" ],
       include: {model: db.Group, attributes: ["name", "description"]},
       order: [["id", "DESC"]],
     });
@@ -126,6 +126,78 @@ const getUserWithPagination = async (page, limit) => {
   }
 };
 
+const updateUser = async (data) => {
+  try {
+    if (!data.groupId) {
+      return {
+        EM: "Error with empty GroupId",
+        EC: 1,
+        DT: "",
+      };
+    }
+    let user = await db.User.findOne({
+      where: {
+        id: data.id,
+      },
+    });
+    if (user) {
+      await user.update({
+        username: data.username,
+        address: data.address,
+        groupId: data.groupId,
+        avatar: data.image
+      });
+      return {
+        EM: "Update user succeeds",
+        EC: 0,
+        DT: "",
+      };
+    } else {
+      return {
+        EM: "User not found",
+        EC: 2,
+        DT: "",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "somethings wrongs with services",
+      EC: 1,
+      DT: [],
+    };
+  }
+}
+
+const deleteUser = async (userId) => {
+  try {
+    let user = await db.User.findOne({
+      where: {id: userId}
+    })
+    if(user) {
+      await user.destroy();
+      return {
+        EM: "Delete user succeeds",
+        EC: 0,
+        DT: [],
+      };
+    } else {
+      return {
+        EM: "User not exist",
+        EC: 2,
+        DT: [],
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "somethings wrongs with services",
+      EC: 1,
+      DT: [],
+    };
+  }
+}
+
 module.exports = {
-    createNewUser, getAllUser, getUserWithPagination
+    createNewUser, getAllUser, getUserWithPagination, updateUser, deleteUser
 }
