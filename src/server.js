@@ -4,11 +4,15 @@ import bodyParser from "body-parser";
 
 import initApiRoutes from "./routes/api";
 import connectDB from "./config/connectDB";
+import configCors from "./config/cors";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8888;
+
+// config cors
+configCors(app);
 
 // config bodyParser
 app.use(bodyParser.json());

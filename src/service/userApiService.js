@@ -48,7 +48,7 @@ const createNewUser = async (data) => {
       };
     }
     let hashPassword = hashUserPassword(data.password);
-    await db.User.create({ ...data, hashPassword });
+    await db.User.create({ ...data, password: hashPassword, avatar: data.image });
     return {
         EM: "Create User Success",
         EC: 0,
@@ -64,6 +64,68 @@ const createNewUser = async (data) => {
   }
 };
 
+const getAllUser = async () => {
+  try {
+    let users = await db.User.findAll({
+      attributes: ["id", "username", "email", "phone", "address"],
+      include: {model: db.Group, attributes: ["name", "description"]}
+    })
+    if(users) {
+      return {
+        EM: "Get data success",
+        EC: 0,
+        DT: users,
+      };
+    } else {
+      return {
+        EM: "Get data success",
+        EC: 0,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+        EM: "somethings wrongs with services",
+        EC: 1,
+        DT: [],
+      };
+  }
+}
+
+const getUserWithPagination = async (page, limit) => {
+  try {
+    let offset = (page - 1) * limit;
+    const { count, rows } = await db.User.findAndCountAll({
+      offset: offset,
+      limit: limit,
+      attributes: ["id", "username", "email", "phone", "address"],
+      include: {model: db.Group, attributes: ["name", "description"]},
+      order: [["id", "DESC"]],
+    });
+
+    let totalPages = Math.ceil(count / limit);
+    let data = {
+      totalRows: count,
+      totalPages: totalPages,
+      users: rows,
+    };
+
+    return {
+      EM: "Ok",
+      EC: 0,
+      DT: data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "somethings wrongs with services",
+      EC: 1,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
-    createNewUser
+    createNewUser, getAllUser, getUserWithPagination
 }
