@@ -35,6 +35,9 @@ module.exports = {
       refresh_token: {
         type: Sequelize.STRING
       },
+      refresh_expired: {
+        type: Sequelize.DATE
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

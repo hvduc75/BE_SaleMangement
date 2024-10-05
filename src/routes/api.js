@@ -1,6 +1,8 @@
 import express from "express";
 import userController from "../controllers/userController";
 import bannerController from "../controllers/bannerController";
+import authController from "../controllers/authController"
+import groupController from "../controllers/groupController"
 import multer from "multer";
 
 // config form data
@@ -21,6 +23,14 @@ const initApiRoutes = (app) => {
     router.get("/get-All-Banner", bannerController.readFunc);
     router.put("/update-banner", upload.single("image"), bannerController.updateFunc);
     router.delete("/delete-banner", bannerController.deleteFunc);
+
+    //auth user
+    router.post("/login", authController.handleLogin);
+    router.post("/register", authController.handleRegister);
+
+    // group routes
+    router.get("/group/read", groupController.readFunc);
+
 
     return app.use("/api/v1", router)
 }

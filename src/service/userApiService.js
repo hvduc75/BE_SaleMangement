@@ -48,29 +48,33 @@ const createNewUser = async (data) => {
       };
     }
     let hashPassword = hashUserPassword(data.password);
-    await db.User.create({ ...data, password: hashPassword, avatar: data.image });
+    await db.User.create({
+      ...data,
+      password: hashPassword,
+      avatar: data.image,
+    });
     return {
-        EM: "Create User Success",
-        EC: 0,
-        DT: [],
-    }
+      EM: "Create User Success",
+      EC: 0,
+      DT: [],
+    };
   } catch (error) {
     console.log(error);
     return {
-        EM: "somethings wrongs with services",
-        EC: 1,
-        DT: [],
-      };
+      EM: "somethings wrongs with services",
+      EC: 1,
+      DT: [],
+    };
   }
 };
 
 const getAllUser = async () => {
   try {
     let users = await db.User.findAll({
-      attributes: ["id", "username", "email", "phone", "address",],
-      include: {model: db.Group, attributes: ["name", "description"]}
-    })
-    if(users) {
+      attributes: ["id", "username", "email", "phone", "address"],
+      include: { model: db.Group, attributes: ["name", "description"] },
+    });
+    if (users) {
       return {
         EM: "Get data success",
         EC: 0,
@@ -86,12 +90,12 @@ const getAllUser = async () => {
   } catch (error) {
     console.log(error);
     return {
-        EM: "somethings wrongs with services",
-        EC: 1,
-        DT: [],
-      };
+      EM: "somethings wrongs with services",
+      EC: 1,
+      DT: [],
+    };
   }
-}
+};
 
 const getUserWithPagination = async (page, limit) => {
   try {
@@ -99,8 +103,8 @@ const getUserWithPagination = async (page, limit) => {
     const { count, rows } = await db.User.findAndCountAll({
       offset: offset,
       limit: limit,
-      attributes: ["id", "username", "email", "groupId", "address", "avatar" ],
-      include: {model: db.Group, attributes: ["name", "description"]},
+      attributes: ["id", "username", "email", "groupId", "address", "avatar"],
+      include: { model: db.Group, attributes: ["name", "description"] },
       order: [["id", "DESC"]],
     });
 
@@ -145,7 +149,7 @@ const updateUser = async (data) => {
         username: data.username,
         address: data.address,
         groupId: data.groupId,
-        avatar: data.image
+        avatar: data.image,
       });
       return {
         EM: "Update user succeeds",
@@ -167,14 +171,14 @@ const updateUser = async (data) => {
       DT: [],
     };
   }
-}
+};
 
 const deleteUser = async (userId) => {
   try {
     let user = await db.User.findOne({
-      where: {id: userId}
-    })
-    if(user) {
+      where: { id: userId },
+    });
+    if (user) {
       await user.destroy();
       return {
         EM: "Delete user succeeds",
@@ -186,7 +190,7 @@ const deleteUser = async (userId) => {
         EM: "User not exist",
         EC: 2,
         DT: [],
-      }
+      };
     }
   } catch (error) {
     console.log(error);
@@ -196,8 +200,15 @@ const deleteUser = async (userId) => {
       DT: [],
     };
   }
-}
+};
 
 module.exports = {
-    createNewUser, getAllUser, getUserWithPagination, updateUser, deleteUser
-}
+  createNewUser,
+  getAllUser,
+  getUserWithPagination,
+  updateUser,
+  deleteUser,
+  checkEmailExist,
+  checkPhoneExist,
+  hashUserPassword,
+};

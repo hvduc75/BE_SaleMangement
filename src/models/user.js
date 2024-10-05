@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       avatar: DataTypes.BLOB('long'),
       groupId: DataTypes.INTEGER,
       refresh_token: DataTypes.STRING,
+      refresh_expired: DataTypes.DATE,
     },
     {
       sequelize,
