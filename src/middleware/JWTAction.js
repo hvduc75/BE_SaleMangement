@@ -2,7 +2,14 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-const nonSecurePaths = ["/", "/logout", "/login", "/register", "/auth/refresh_token"];
+const nonSecurePaths = [
+  "/auth/logout",
+  "/auth/login",
+  "/auth/register",
+  "/auth/refresh_token",
+  "/get-all-category",
+  "/get-all-banner",
+];
 
 const createJWT = (payload, JWT_SECRET, JWT_EXPIRES_IN) => {
   let key = JWT_SECRET;
@@ -42,7 +49,7 @@ const checkUserJWT = (req, res, next) => {
   // 1 so trang muon cho no khong can thi config o day nhu trang home chang han
   if (nonSecurePaths.includes(req.path)) return next();
   let cookies = req.cookies;
-  console.log(cookies.jwt)
+  console.log(cookies.jwt);
   let tokenFromHeader = extractToken(req);
 
   if ((cookies && cookies.jwt) || tokenFromHeader) {

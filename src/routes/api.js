@@ -3,6 +3,7 @@ import userController from "../controllers/userController";
 import bannerController from "../controllers/bannerController";
 import authController from "../controllers/authController";
 import groupController from "../controllers/groupController";
+import categoryController from "../controllers/categoryController";
 import multer from "multer";
 
 import { checkUserJWT } from "../middleware/JWTAction";
@@ -30,13 +31,19 @@ const initApiRoutes = (app) => {
   router.delete("/delete-banner", bannerController.deleteFunc);
 
   //auth routes
-  router.post("/login", authController.handleLogin);
-  router.post("/register", authController.handleRegister);
-  router.post("/logout", authController.handleLogout)
+  router.post("/auth/login", authController.handleLogin);
+  router.post("/auth/register", authController.handleRegister);
+  router.post("/auth/logout", authController.handleLogout)
   router.post("/auth/refresh_token", authController.handleRefreshToken)
 
   // group routes
   router.get("/group/read", groupController.readFunc);
+
+  // category routes
+  router.post("/create-category", upload.single("image"), categoryController.createFunc)
+  router.get("/get-All-Category", categoryController.readFunc);
+  router.put("/update-category", upload.single("image"), categoryController.updateFunc);
+  router.delete("/delete-category", categoryController.deleteFunc);
 
   return app.use("/api/v1", router);
 };

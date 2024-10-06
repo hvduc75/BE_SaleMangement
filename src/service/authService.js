@@ -45,11 +45,8 @@ const handleUserLogin = async (data) => {
         let refresh_expired = new Date();
         refresh_expired.setDate(refresh_expired.getDate() + 2);
 
-        await user.update({
-          refresh_token: refresh_token,
-          refresh_expired: refresh_expired,
-        });
-
+        // co luu nhung duoi db dell thay doi dell hieu luon
+        await user.update({ refresh_token, refresh_expired });
         return {
           EM: "Ok",
           EC: 0,
@@ -124,7 +121,10 @@ const handleUserRegister = async (data) => {
 const handleRefreshToken = async (data) => {
   try {
     const refresh_token = data.refresh_token;
-    const decoded = verifyToken(refresh_token, process.env.REFRESH_TOKEN_SECRET);
+    const decoded = verifyToken(
+      refresh_token,
+      process.env.REFRESH_TOKEN_SECRET
+    );
 
     if (!decoded) {
       return {
@@ -139,7 +139,8 @@ const handleRefreshToken = async (data) => {
     });
 
     if (user) {
-      if ( new Date() < user.refresh_expired) {
+      // refresh_token === user.refresh_token nen check them dk nay ma duoi db luu ma khong thay doi 
+      if (new Date() < user.refresh_expired) {
         const payload = {
           email: user.email,
           username: user.username,
@@ -161,7 +162,7 @@ const handleRefreshToken = async (data) => {
         };
       } else {
         return {
-          EM: "Refresh token has expired or does not match",
+          EM: "Refresh token has expired. Please log in again",
           EC: 1,
           DT: "",
         };
@@ -183,9 +184,8 @@ const handleRefreshToken = async (data) => {
   }
 };
 
-
 module.exports = {
   handleUserLogin,
   handleUserRegister,
-  handleRefreshToken
+  handleRefreshToken,
 };
