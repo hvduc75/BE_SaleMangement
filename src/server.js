@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 
 import initApiRoutes from "./routes/api";
 import connectDB from "./config/connectDB";
@@ -17,6 +18,9 @@ configCors(app);
 // config bodyParser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// config cookie -parser
+app.use(cookieParser());
 
 // test connection db
 connectDB();

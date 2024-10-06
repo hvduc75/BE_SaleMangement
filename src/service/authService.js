@@ -1,13 +1,14 @@
 import db from "../models";
 import bcrypt from "bcryptjs";
 import { Op } from "sequelize";
-import { createJWT } from "../middleware/JWTAction";
+
 import {
   checkEmailExist,
   checkPhoneExist,
   hashUserPassword,
 } from "./userApiService";
 import { getGroupWithRoles } from "./JWTService";
+import { createJWT, verifyToken } from "../middleware/JWTAction";
 
 const checkPassword = (inputPassword, hashPassword) => {
   return bcrypt.compareSync(inputPassword, hashPassword);
@@ -120,7 +121,71 @@ const handleUserRegister = async (data) => {
   }
 };
 
+const handleRefreshToken = async (data) => {
+  try {
+    const refresh_token = data.refresh_token;
+    const decoded = verifyToken(refresh_token, process.env.REFRESH_TOKEN_SECRET);
+
+    if (!decoded) {
+      return {
+        EM: "Refresh token is invalid",
+        EC: 1,
+        DT: "",
+      };
+    }
+
+    const user = await db.User.findOne({
+      where: { email: decoded.email },
+    });
+
+    if (user) {
+      if ( new Date() < user.refresh_expired) {
+        const payload = {
+          email: user.email,
+          username: user.username,
+          groupWithRoles: decoded.groupWithRoles,
+        };
+
+        const access_token = createJWT(
+          payload,
+          process.env.ACCESS_TOKEN_SECRET,
+          process.env.ACCESS_TOKEN_EXPIRES_IN
+        );
+
+        return {
+          EM: "Access token refreshed successfully",
+          EC: 0,
+          DT: {
+            access_token: access_token,
+          },
+        };
+      } else {
+        return {
+          EM: "Refresh token has expired or does not match",
+          EC: 1,
+          DT: "",
+        };
+      }
+    } else {
+      return {
+        EM: "User not found",
+        EC: 1,
+        DT: "",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Something went wrong in the service",
+      EC: -2,
+      DT: [],
+    };
+  }
+};
+
+
 module.exports = {
   handleUserLogin,
   handleUserRegister,
+  handleRefreshToken
 };
