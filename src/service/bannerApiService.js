@@ -123,6 +123,7 @@ const getBannersWithStatus = async (status) => {
 };
 
 const updateBanner = async (data) => {
+  console.log(data)
   try {
     if (!data.name || !data.status) {
       return {
@@ -140,7 +141,6 @@ const updateBanner = async (data) => {
     if (banner) {
       const currentStatus = banner.status;
       const newStatus = data.status;
-      console.log("check: ", newStatus, currentStatus)
       // Nếu đang chuyển trạng thái từ false sang true
       if (newStatus && !currentStatus) {
         let data = await getBannersWithStatus(true);
@@ -167,7 +167,7 @@ const updateBanner = async (data) => {
         name: data.name,
         description: data.description,
         status: newStatus,
-        avatar: data.image,
+        image: data.image,
       });
 
       return {
