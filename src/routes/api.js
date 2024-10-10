@@ -68,8 +68,7 @@ const initApiRoutes = (app) => {
 
   // product routes
   router.get("/product/read", productController.readFunc);
-  router.post(
-    "/product/create",
+  router.post("/product/create",
     upload.fields([
       { name: "image", maxCount: 10 },
       { name: "background", maxCount: 10 },
@@ -85,6 +84,8 @@ const initApiRoutes = (app) => {
     productController.updateFunc
   );
   router.delete("/product/delete", productController.deleteFunc);
+  router.get("/product/getAllProduct", productController.getAllProducts);
+  router.post("/product/create-user-product", productController.createUserProduct)
 
   return app.use("/api/v1", router);
 };

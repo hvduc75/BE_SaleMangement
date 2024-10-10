@@ -123,7 +123,6 @@ const getBannersWithStatus = async (status) => {
 };
 
 const updateBanner = async (data) => {
-  console.log(data)
   try {
     if (!data.name || !data.status) {
       return {

@@ -8,14 +8,15 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      User_Product.belongsTo(models.User, { foreignKey: "userId" });
+      User_Product.belongsTo(models.Product, { foreignKey: "productId" });
     }
   }
   User_Product.init(
     {
       productId: DataTypes.INTEGER,
       userId: DataTypes.INTEGER,
-      watched: DataTypes.BOOLEAN
+      viewNum: DataTypes.INTEGER,
     },
     {
       sequelize,

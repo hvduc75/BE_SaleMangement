@@ -57,6 +57,7 @@ const handleUserLogin = async (data) => {
             role: groupWithRoles.name,
             email: user.email,
             username: user.username,
+            id: user.id,
           },
         };
       }

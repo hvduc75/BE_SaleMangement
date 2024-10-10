@@ -49,7 +49,6 @@ const checkUserJWT = (req, res, next) => {
   // 1 so trang muon cho no khong can thi config o day nhu trang home chang han
   if (nonSecurePaths.includes(req.path)) return next();
   let cookies = req.cookies;
-  console.log(cookies.jwt);
   let tokenFromHeader = extractToken(req);
 
   if ((cookies && cookies.jwt) || tokenFromHeader) {
