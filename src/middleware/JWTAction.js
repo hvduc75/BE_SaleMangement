@@ -9,6 +9,7 @@ const nonSecurePaths = [
   "/auth/refresh_token",
   "/get-all-category",
   "/get-all-banner",
+  "/product/getAllProduct",
 ];
 
 const createJWT = (payload, JWT_SECRET, JWT_EXPIRES_IN) => {
