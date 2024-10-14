@@ -6,6 +6,7 @@ import groupController from '../controllers/groupController';
 import categoryController from '../controllers/categoryController';
 import productController from '../controllers/productController';
 import productDetailController from '../controllers/productDetailController';
+import cartController from "../controllers/cartController"
 import multer from 'multer';
 
 import { checkUserJWT } from '../middleware/JWTAction';
@@ -73,6 +74,12 @@ const initApiRoutes = (app) => {
     // product detail routes
     router.post('/product_detail/create-or-update', productDetailController.createUpdateFunc);
     router.get('/product_detail/read', productDetailController.readFunc);
+
+    // cart routes
+    router.post('/cart/create', cartController.createFunc);
+    router.post('/cart/add-to-cart', cartController.addToCart);
+    router.get('/cart/read', cartController.readFunc);
+    router.get('/cart/getAllProductByCartId', cartController.getAllProductByCartId)
 
     return app.use('/api/v1', router);
 };

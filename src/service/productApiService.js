@@ -73,7 +73,7 @@ const getProductById = async (productId) => {
             include: [{
                 model: db.ProductDetail,
                 attributes: ['description'],
-            }]
+            }],
         })
         return {
             EM: 'Ok',
