@@ -45,6 +45,51 @@ const createNewProducts = async (products) => {
     }
 };
 
+const getAllProducts = async () => {
+    try {
+        let products = await db.Product.findAll({
+            attributes: ['id', 'name', 'price', 'sale', 'quantity_current', 'image', 'background'],
+        });
+        return {
+            EM: 'Ok',
+            EC: 0,
+            DT: products,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'Somethings wrong with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
+const getProductById = async (productId) => {
+    try {
+        let product = await db.Product.findOne({
+            where: {id: productId},
+            attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image', 'background'],
+            include: [{
+                model: db.ProductDetail,
+                attributes: ['description'],
+            }]
+        })
+        return {
+            EM: 'Ok',
+            EC: 0,
+            DT: product,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'Somethings wrong with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+}
+
 const getProductWithPagination = async (page, limit, categoryId) => {
     try {
         limit = parseInt(limit, 10) || 36;
@@ -301,4 +346,6 @@ module.exports = {
     deleteProduct,
     getAllProductWithCondition,
     createUserProduct,
+    getAllProducts,
+    getProductById
 };

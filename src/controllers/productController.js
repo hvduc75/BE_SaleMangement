@@ -1,4 +1,3 @@
-import { query } from 'express';
 import productApiService from '../service/productApiService';
 
 const createFunc = async (req, res) => {
@@ -61,6 +60,12 @@ const readFunc = async (req, res) => {
                 DT: data.DT,
             });
         }
+        let data = await productApiService.getAllProducts();
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -70,6 +75,25 @@ const readFunc = async (req, res) => {
         });
     }
 };
+
+const getProductById = async(req, res) => {
+    try {
+        let productId = req.query.productId;
+        let data = await productApiService.getProductById(productId);
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            EM: 'Error from server',
+            EC: '-1',
+            DT: '',
+        });
+    }
+}
 
 const getAllProducts = async (req, res) => {
     try {
@@ -102,7 +126,7 @@ const getAllProducts = async (req, res) => {
         if (condition === 'productWithPaginate') {
             let page = req.query.page;
             let limit = req.query.limit;
-            console.log(page, limit)
+            console.log(page, limit);
             let data = await productApiService.getProductWithPagination(page, limit);
             return res.status(200).json({
                 EM: data.EM,
@@ -139,6 +163,7 @@ const updateFunc = async (req, res) => {
         });
     }
 };
+
 const deleteFunc = async (req, res) => {
     try {
         let data = await productApiService.deleteProduct(req.body.id);
@@ -183,4 +208,5 @@ module.exports = {
     deleteFunc,
     getAllProducts,
     createUserProduct,
+    getProductById
 };

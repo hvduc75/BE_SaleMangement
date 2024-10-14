@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   ProductDetail.init(
     {
-      description: DataTypes.STRING,
+      description: DataTypes.TEXT('long'),
+      contentMarkdown: DataTypes.TEXT('long'),
       productId: DataTypes.INTEGER,
     },
     {

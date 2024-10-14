@@ -9,7 +9,10 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       description: {
-        type: Sequelize.STRING
+        type: Sequelize.TEXT('long')
+      },
+      contentMarkdown: {
+        type: Sequelize.TEXT('long')
       },
       productId: {
         type: Sequelize.INTEGER

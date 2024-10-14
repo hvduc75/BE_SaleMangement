@@ -5,6 +5,7 @@ import authController from '../controllers/authController';
 import groupController from '../controllers/groupController';
 import categoryController from '../controllers/categoryController';
 import productController from '../controllers/productController';
+import productDetailController from '../controllers/productDetailController';
 import multer from 'multer';
 
 import { checkUserJWT } from '../middleware/JWTAction';
@@ -48,6 +49,8 @@ const initApiRoutes = (app) => {
 
     // product routes
     router.get('/product/read', productController.readFunc);
+    router.get('/product/getAllProduct', productController.getAllProducts);
+    router.get('/product/getProductById', productController.getProductById)
     router.post(
         '/product/create',
         upload.fields([
@@ -56,6 +59,7 @@ const initApiRoutes = (app) => {
         ]),
         productController.createFunc,
     );
+    router.post('/product/create-user-product', productController.createUserProduct);
     router.put(
         '/product/update',
         upload.fields([
@@ -65,8 +69,10 @@ const initApiRoutes = (app) => {
         productController.updateFunc,
     );
     router.delete('/product/delete', productController.deleteFunc);
-    router.get('/product/getAllProduct', productController.getAllProducts);
-    router.post('/product/create-user-product', productController.createUserProduct);
+
+    // product detail routes
+    router.post('/product_detail/create-or-update', productDetailController.createUpdateFunc);
+    router.get('/product_detail/read', productDetailController.readFunc);
 
     return app.use('/api/v1', router);
 };
