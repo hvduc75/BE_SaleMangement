@@ -26,6 +26,13 @@ module.exports = (sequelize, DataTypes) => {
                 through: models.Product_Cart,
                 foreignKey: 'productId',
             });
+            Product.belongsToMany(models.Order, {
+                through: models.Order_Product,
+                foreignKey: 'productId',
+            });
+            Product.hasMany(models.Order_Product, {
+                foreignKey: 'productId',
+            });
             Product.belongsTo(models.Category);
         }
     }
@@ -40,7 +47,6 @@ module.exports = (sequelize, DataTypes) => {
             quantity_current: DataTypes.INTEGER,
             quantity_sold: DataTypes.INTEGER,
             categoryId: DataTypes.INTEGER,
-            orderId: DataTypes.INTEGER,
         },
         {
             sequelize,

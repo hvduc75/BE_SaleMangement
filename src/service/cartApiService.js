@@ -122,21 +122,100 @@ const addToCart = async (data) => {
                 quantity: productCart.quantity + data.quantity,
             });
             return {
-                EM: 'Update Quantity Product Success',
+                EM: 'Added to cart successfully',
                 EC: 0,
                 DT: [],
             };
-        }
+        }   
         await db.Product_Cart.create({
             cartId: data.cartId,
             productId: data.productId,
             quantity: data.quantity,
         });
         return {
-            EM: 'Create Cart Product Success',
+            EM: 'Added to cart successfully',
             EC: 0,
             DT: [],
         };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: "Something's wrong with services",
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
+const updateFunc = async (data) => {
+    try {
+        if (!data.cartId || !data.productId || !data.quantity) {
+            return {
+                EM: 'Input is Empty',
+                EC: 1,
+                DT: [],
+            };
+        }
+        let productCart = await db.Product_Cart.findOne({
+            where: {
+                [Op.and]: [{ cartId: data.cartId }, { productId: data.productId }],
+            },
+        });
+        if (productCart) {
+            await productCart.update({
+                quantity: data.quantity,
+            });
+            return {
+                EM: 'Update Quantity Product Success',
+                EC: 0,
+                DT: [],
+            };
+        } else {
+            return {
+                EM: 'ProductCart not found',
+                EC: 0,
+                DT: [],
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: "Something's wrong with services",
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
+const deleteFunc = async (cartId, productId) => {
+    console.log(cartId, productId)
+    try {
+        if (!cartId || !productId) {
+            return {
+                EM: 'Input is Empty',
+                EC: 1,
+                DT: [],
+            };
+        }
+        let productCart = await db.Product_Cart.findOne({
+            where: {
+                [Op.and]: [{ cartId: cartId }, { productId: productId }],
+            },
+        });
+        if (productCart) {
+            await productCart.destroy();
+            return {
+                EM: 'Delete Product In Cart Success',
+                EC: 0,
+                DT: [],
+            };
+        } else {
+            return {
+                EM: 'ProductCart not found',
+                EC: 0,
+                DT: [],
+            };
+        }
     } catch (error) {
         console.log(error);
         return {
@@ -152,4 +231,6 @@ module.exports = {
     readFunc,
     addToCart,
     getAllProductByCartId,
+    updateFunc,
+    deleteFunc
 };

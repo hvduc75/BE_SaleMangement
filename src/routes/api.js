@@ -79,7 +79,9 @@ const initApiRoutes = (app) => {
     router.post('/cart/create', cartController.createFunc);
     router.post('/cart/add-to-cart', cartController.addToCart);
     router.get('/cart/read', cartController.readFunc);
-    router.get('/cart/getAllProductByCartId', cartController.getAllProductByCartId)
+    router.get('/cart/getAllProductByCartId', cartController.getAllProductByCartId);
+    router.put('/cart/update-quantity', cartController.updateFunc)
+    router.delete('/cart/delete-product', cartController.deleteFunc)
 
     return app.use('/api/v1', router);
 };
