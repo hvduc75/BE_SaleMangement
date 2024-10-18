@@ -103,6 +103,48 @@ const getAllProductByCartId = async (cartId) => {
     }
 };
 
+const getAllProductByCheckbox = async (cartId) => {
+    try {
+        let products = await db.Cart.findAll({
+            where: { id: cartId },
+            attributes: ['userId'],
+            include: [
+                {
+                    model: db.Product,
+                    attributes: [
+                        'id',
+                        'name',
+                        'price',
+                        'sale',
+                        'image',
+                        'price_current',
+                        'background',
+                        'quantity_current',
+                        'quantity_sold',
+                    ],
+                    through: {
+                        // where: { isChecked: true }, 
+                        attributes: ['quantity', 'isChecked'], 
+                    },
+                },
+            ],
+        });
+        return {
+            EM: 'Get data success',
+            EC: 0,
+            DT: products,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: "Something's wrong with services",
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
+
 const addToCart = async (data) => {
     try {
         if (!data.cartId || !data.productId || !data.quantity) {
@@ -187,6 +229,47 @@ const updateFunc = async (data) => {
     }
 };
 
+const updateIsChecked = async (data) => {
+    try {
+        if (!data.cartId || !data.productId || data.isChecked === undefined) {
+            return {
+                EM: 'Input is Empty',
+                EC: 1,
+                DT: [],
+            };
+        }
+        let productCart = await db.Product_Cart.findOne({
+            where: {
+                [Op.and]: [{ cartId: data.cartId }, { productId: data.productId }],
+            },
+        });
+        if (productCart) {
+            // console.log(data)
+            await productCart.update({
+                isChecked: data.isChecked,
+            });
+            return {
+                EM: 'Update IsChecked Success',
+                EC: 0,
+                DT: [],
+            };
+        } else {
+            return {
+                EM: 'ProductCart not found',
+                EC: 0,
+                DT: [],
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: "Something's wrong with services",
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
 const deleteFunc = async (cartId, productId) => {
     console.log(cartId, productId)
     try {
@@ -232,5 +315,7 @@ module.exports = {
     addToCart,
     getAllProductByCartId,
     updateFunc,
-    deleteFunc
+    deleteFunc,
+    updateIsChecked,
+    getAllProductByCheckbox
 };

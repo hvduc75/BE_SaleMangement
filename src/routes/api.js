@@ -6,7 +6,8 @@ import groupController from '../controllers/groupController';
 import categoryController from '../controllers/categoryController';
 import productController from '../controllers/productController';
 import productDetailController from '../controllers/productDetailController';
-import cartController from "../controllers/cartController"
+import cartController from '../controllers/cartController';
+import userInforController from '../controllers/userInforController';
 import multer from 'multer';
 
 import { checkUserJWT } from '../middleware/JWTAction';
@@ -26,6 +27,9 @@ const initApiRoutes = (app) => {
     router.get('/get-All-User', userController.readFunc);
     router.put('/update-user', upload.single('image'), userController.updateFunc);
     router.delete('/delete-user', userController.deleteFunc);
+
+    // user Infor routes
+    router.post('/user_infor/create', userInforController.createFunc);
 
     //banner routes
     router.post('/create-banner', upload.single('image'), bannerController.createFunc);
@@ -51,7 +55,7 @@ const initApiRoutes = (app) => {
     // product routes
     router.get('/product/read', productController.readFunc);
     router.get('/product/getAllProduct', productController.getAllProducts);
-    router.get('/product/getProductById', productController.getProductById)
+    router.get('/product/getProductById', productController.getProductById);
     router.post(
         '/product/create',
         upload.fields([
@@ -80,8 +84,10 @@ const initApiRoutes = (app) => {
     router.post('/cart/add-to-cart', cartController.addToCart);
     router.get('/cart/read', cartController.readFunc);
     router.get('/cart/getAllProductByCartId', cartController.getAllProductByCartId);
-    router.put('/cart/update-quantity', cartController.updateFunc)
-    router.delete('/cart/delete-product', cartController.deleteFunc)
+    router.get('/cart/getAllProductByCheckbox', cartController.getAllProductByCheckbox)
+    router.put('/cart/update-quantity', cartController.updateFunc);
+    router.put('/cart/update-isChecked', cartController.updateIsChecked)
+    router.delete('/cart/delete-product', cartController.deleteFunc);
 
     return app.use('/api/v1', router);
 };

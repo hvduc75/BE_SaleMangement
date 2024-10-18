@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       commune: DataTypes.STRING,
       address: DataTypes.STRING,
       typeAddress: DataTypes.STRING,
+      isDefault: DataTypes.BOOLEAN,
       orderId: DataTypes.INTEGER,
       userId: DataTypes.INTEGER
     },

@@ -1,4 +1,7 @@
 'use strict';
+
+const { sequelize } = require("../models");
+
 module.exports = {
     up: async (queryInterface, Sequelize) => {
         await queryInterface.createTable('Product_Cart', {
@@ -16,6 +19,9 @@ module.exports = {
             },
             quantity: {
                 type: Sequelize.INTEGER,
+            },
+            isChecked: {
+                type: Sequelize.BOOLEAN,
             },
             createdAt: {
                 allowNull: false,

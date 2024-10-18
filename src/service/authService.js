@@ -57,6 +57,7 @@ const handleUserLogin = async (data) => {
                         groupWithRoles: groupWithRoles,
                         role: groupWithRoles.name,
                         email: user.email,
+                        phone: user.phone,
                         username: user.username,
                         id: user.id,
                     },

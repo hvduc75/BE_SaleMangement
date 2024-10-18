@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
             quantity: DataTypes.INTEGER,
             cartId: DataTypes.INTEGER,
             productId: DataTypes.INTEGER,
+            isChecked: DataTypes.BOOLEAN,
         },
         {
             sequelize,

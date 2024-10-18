@@ -23,6 +23,9 @@ module.exports = {
             typeAddress: {
                 type: Sequelize.STRING,
             },
+            isDefault: {
+                type: Sequelize.BOOLEAN,
+            },
             orderId: {
                 type: Sequelize.INTEGER,
             },
