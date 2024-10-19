@@ -1,8 +1,8 @@
-import userInforApiService from '../service/userInforApiService';
+import orderApiService from '../service/orderApiService';
 
 const createFunc = async (req, res) => {
     try {
-        let data = await userInforApiService.createFunc(req.body);
+        let data = await orderApiService.createOrder(req.body);
         return res.status(200).json({
             EM: data.EM,
             EC: data.EC,
@@ -18,10 +18,9 @@ const createFunc = async (req, res) => {
     }
 };
 
-const getAllUserInfor = async (req, res) => {
+const createOrderDetail = async (req, res) => {
     try {
-      let userId = req.query.userId;
-        let data = await userInforApiService.getAllUserInfor(userId);
+        let data = await orderApiService.createOrder(req.body);
         return res.status(200).json({
             EM: data.EM,
             EC: data.EC,
@@ -35,9 +34,8 @@ const getAllUserInfor = async (req, res) => {
             DT: '',
         });
     }
-};
+}
 
 module.exports = {
-    createFunc,
-    getAllUserInfor,
+    createFunc,createOrderDetail
 };

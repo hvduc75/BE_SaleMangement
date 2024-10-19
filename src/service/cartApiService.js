@@ -144,7 +144,6 @@ const getAllProductByCheckbox = async (cartId) => {
     }
 };
 
-
 const addToCart = async (data) => {
     try {
         if (!data.cartId || !data.productId || !data.quantity) {
@@ -271,7 +270,6 @@ const updateIsChecked = async (data) => {
 };
 
 const deleteFunc = async (cartId, productId) => {
-    console.log(cartId, productId)
     try {
         if (!cartId || !productId) {
             return {
@@ -309,6 +307,59 @@ const deleteFunc = async (cartId, productId) => {
     }
 };
 
+const deleteCartProducts = async (data) => {
+    try {
+        console.log(data)
+        if (!data.cartId || !data.products ) {
+            return {
+                EM: 'Input is Empty or Invalid',
+                EC: 1,
+                DT: [],
+            };
+        }
+
+        // Mảng để lưu kết quả xóa sản phẩm
+        const deleteResults = [];
+
+        for (let product of data.products) {
+            let productCart = await db.Product_Cart.findOne({
+                where: {
+                    [Op.and]: [{ cartId: data.cartId }, { productId: product.id }],
+                },
+            });
+
+            if (productCart) {
+                await productCart.destroy();
+                deleteResults.push({
+                    productId: data.id,
+                    message: 'Delete Product In Cart Success',
+                    success: true,
+                });
+            } else {
+                deleteResults.push({
+                    productId: data.id,
+                    message: 'ProductCart not found',
+                    success: false,
+                });
+            }
+        }
+
+        return {
+            EM: 'Delete Products In Cart Processed',
+            EC: 0,
+            DT: deleteResults,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: "Something's wrong with services",
+            EC: 1,
+            DT: [],
+        };
+    }
+}
+
+
 module.exports = {
     createFunc,
     readFunc,
@@ -317,5 +368,5 @@ module.exports = {
     updateFunc,
     deleteFunc,
     updateIsChecked,
-    getAllProductByCheckbox
+    getAllProductByCheckbox, deleteCartProducts
 };

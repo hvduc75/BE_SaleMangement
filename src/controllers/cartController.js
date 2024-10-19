@@ -147,6 +147,24 @@ const deleteFunc = async (req, res) => {
     }
 }
 
+const deleteCartProduct = async (req, res) => {
+    try {
+        let data = await cartApiService.deleteCartProducts(req.query.data);
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            EM: 'error from server',
+            EC: '-1',
+            DT: '',
+        });
+    }
+}
+
 module.exports = {
     createFunc,
     readFunc,
@@ -155,5 +173,6 @@ module.exports = {
     getAllProductByCheckbox,
     updateFunc,
     deleteFunc,
-    updateIsChecked
+    updateIsChecked,
+    deleteCartProduct
 };

@@ -8,6 +8,8 @@ import productController from '../controllers/productController';
 import productDetailController from '../controllers/productDetailController';
 import cartController from '../controllers/cartController';
 import userInforController from '../controllers/userInforController';
+import paymentController from "../controllers/paymentcontroller"
+import orderController from "../controllers/orderController"
 import multer from 'multer';
 
 import { checkUserJWT } from '../middleware/JWTAction';
@@ -30,6 +32,7 @@ const initApiRoutes = (app) => {
 
     // user Infor routes
     router.post('/user_infor/create', userInforController.createFunc);
+    router.get('/user_infor/read', userInforController.getAllUserInfor)
 
     //banner routes
     router.post('/create-banner', upload.single('image'), bannerController.createFunc);
@@ -88,6 +91,15 @@ const initApiRoutes = (app) => {
     router.put('/cart/update-quantity', cartController.updateFunc);
     router.put('/cart/update-isChecked', cartController.updateIsChecked)
     router.delete('/cart/delete-product', cartController.deleteFunc);
+    router.delete('/cart/delete-cart-product', cartController.deleteCartProduct)
+
+    // payment
+    router.post('/payment/vnpay', paymentController.checkout)
+    router.get('/vnpay_return', paymentController.vnpRetun)
+
+    // order router
+    router.post("/order/create", orderController.createFunc)
+    router.post("/order/orderDetail", orderController.createOrderDetail)
 
     return app.use('/api/v1', router);
 };

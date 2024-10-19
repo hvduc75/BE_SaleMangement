@@ -20,6 +20,9 @@ module.exports = {
             note: {
                 type: Sequelize.STRING,
             },
+            transactionID: {
+                type: Sequelize.STRING,
+            },
             userId: {
                 type: Sequelize.INTEGER,
             },
