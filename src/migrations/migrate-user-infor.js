@@ -26,9 +26,6 @@ module.exports = {
             isDefault: {
                 type: Sequelize.BOOLEAN,
             },
-            orderId: {
-                type: Sequelize.INTEGER,
-            },
             userId: {
                 type: Sequelize.INTEGER,
             },

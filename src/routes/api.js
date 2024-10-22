@@ -32,7 +32,7 @@ const initApiRoutes = (app) => {
 
     // user Infor routes
     router.post('/user_infor/create', userInforController.createFunc);
-    router.get('/user_infor/read', userInforController.getAllUserInfor)
+    router.get('/user_infor/read', userInforController.getUserInforDefault)
 
     //banner routes
     router.post('/create-banner', upload.single('image'), bannerController.createFunc);
@@ -59,6 +59,7 @@ const initApiRoutes = (app) => {
     router.get('/product/read', productController.readFunc);
     router.get('/product/getAllProduct', productController.getAllProducts);
     router.get('/product/getProductById', productController.getProductById);
+    router.get('/product/getProductsByCategoryId', productController.getProductsByCategoryId);
     router.post(
         '/product/create',
         upload.fields([
@@ -87,7 +88,6 @@ const initApiRoutes = (app) => {
     router.post('/cart/add-to-cart', cartController.addToCart);
     router.get('/cart/read', cartController.readFunc);
     router.get('/cart/getAllProductByCartId', cartController.getAllProductByCartId);
-    router.get('/cart/getAllProductByCheckbox', cartController.getAllProductByCheckbox)
     router.put('/cart/update-quantity', cartController.updateFunc);
     router.put('/cart/update-isChecked', cartController.updateIsChecked)
     router.delete('/cart/delete-product', cartController.deleteFunc);
@@ -100,6 +100,7 @@ const initApiRoutes = (app) => {
     // order router
     router.post("/order/create", orderController.createFunc)
     router.post("/order/orderDetail", orderController.createOrderDetail)
+    router.get("/order/getOrdersByUserId", orderController.getOrdersByUserId)
 
     return app.use('/api/v1', router);
 };

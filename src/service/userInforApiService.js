@@ -18,6 +18,17 @@ const createFunc = async (data) => {
                 DT: '',
             };
         }
+        let userInfo = await db.User_Infor.findOne({
+            where: { isDefault: true },
+        });
+
+        if(userInfo){
+            return {
+                EM: 'Can Not Make User Info',
+                EC: 1,
+                DT: '',
+            };
+        }
         await db.User_Infor.create({
             province: data.province,
             district: data.district,
@@ -43,7 +54,7 @@ const createFunc = async (data) => {
     }
 };
 
-const getAllUserInfor = async (userId) => {
+const getUserInforDefault = async (userId) => {
     try {
         let data = await db.User_Infor.findOne({
             where: {
@@ -67,5 +78,5 @@ const getAllUserInfor = async (userId) => {
 
 module.exports = {
     createFunc,
-    getAllUserInfor,
+    getUserInforDefault,
 };

@@ -72,7 +72,6 @@ const checkout = async (req, res) => {
 };
 
 const vnpRetun = async (req, res) => {
-    console.log('Received Params:', req.query);
     let vnp_Params = req.query;
     let secureHash = vnp_Params['vnp_SecureHash'];
 

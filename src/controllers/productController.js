@@ -126,7 +126,6 @@ const getAllProducts = async (req, res) => {
         if (condition === 'productWithPaginate') {
             let page = req.query.page;
             let limit = req.query.limit;
-            console.log(page, limit);
             let data = await productApiService.getProductWithPagination(page, limit);
             return res.status(200).json({
                 EM: data.EM,
@@ -143,6 +142,25 @@ const getAllProducts = async (req, res) => {
         });
     }
 };
+
+const getProductsByCategoryId = async(req, res) => {
+    try {
+        let categoryId = req.query.categoryId;
+        let data = await productApiService.getProductsByCategoryId(categoryId);
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            EM: 'Error from server',
+            EC: '-1',
+            DT: '',
+        });
+    }
+}
 
 const updateFunc = async (req, res) => {
     try {
@@ -208,5 +226,6 @@ module.exports = {
     deleteFunc,
     getAllProducts,
     createUserProduct,
-    getProductById
+    getProductById,
+    getProductsByCategoryId
 };

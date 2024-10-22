@@ -9,7 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       User_Infor.belongsTo(models.User);
-      User_Infor.belongsTo(models.Order);
+      User_Infor.hasMany(models.Order, {
+        foreignKey: 'userInfoId',
+      });
     }
   }
   User_Infor.init(
@@ -20,7 +22,6 @@ module.exports = (sequelize, DataTypes) => {
       address: DataTypes.STRING,
       typeAddress: DataTypes.STRING,
       isDefault: DataTypes.BOOLEAN,
-      orderId: DataTypes.INTEGER,
       userId: DataTypes.INTEGER
     },
     {

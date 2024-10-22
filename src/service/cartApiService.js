@@ -65,45 +65,45 @@ const readFunc = async (userId) => {
     }
 };
 
-const getAllProductByCartId = async (cartId) => {
-    try {
-        let products = await db.Cart.findAll({
-            where: { id: cartId },
-            attributes: ['userId'],
-            include: [
-                {
-                    model: db.Product,
-                    attributes: [
-                        'id',
-                        'name',
-                        'price',
-                        'sale',
-                        'image',
-                        'price_current',
-                        'background',
-                        'quantity_current',
-                        'quantity_sold',
-                    ],
-                    through: { attributes: ['quantity'] },
-                },
-            ],
-        });
-        return {
-            EM: 'Get data success',
-            EC: 0,
-            DT: products,
-        };
-    } catch (error) {
-        console.log(error);
-        return {
-            EM: "Something's wrong with services",
-            EC: 1,
-            DT: [],
-        };
-    }
-};
+// const getAllProductByCartId = async (cartId) => {
+//     try {
+//         let products = await db.Cart.findAll({
+//             where: { id: cartId },
+//             attributes: ['userId'],
+//             include: [
+//                 {
+//                     model: db.Product,
+//                     attributes: [
+//                         'id',
+//                         'name',
+//                         'price',
+//                         'sale',
+//                         'image',
+//                         'price_current',
+//                         'background',
+//                         'quantity_current',
+//                         'quantity_sold',
+//                     ],
+//                     through: { attributes: ['quantity'] },
+//                 },
+//             ],
+//         });
+//         return {
+//             EM: 'Get data success',
+//             EC: 0,
+//             DT: products,
+//         };
+//     } catch (error) {
+//         console.log(error);
+//         return {
+//             EM: "Something's wrong with services",
+//             EC: 1,
+//             DT: [],
+//         };
+//     }
+// };
 
-const getAllProductByCheckbox = async (cartId) => {
+const getAllProductByCartId = async (cartId) => {
     try {
         let products = await db.Cart.findAll({
             where: { id: cartId },
@@ -364,9 +364,8 @@ module.exports = {
     createFunc,
     readFunc,
     addToCart,
-    getAllProductByCartId,
     updateFunc,
     deleteFunc,
     updateIsChecked,
-    getAllProductByCheckbox, deleteCartProducts
+    getAllProductByCartId, deleteCartProducts
 };

@@ -1,9 +1,8 @@
 import db from '../models';
-import { Op } from 'sequelize';
 
 const createOrder = async (data) => {
     try {
-        if (!data.totalPrice || !data.userId || !data.products || !data.transactionID) {
+        if (!data.totalPrice || !data.userId || !data.products || !data.transactionID || !data.userInfoId) {
             return {
                 EM: 'Error with empty Input',
                 EC: 1,
@@ -27,6 +26,7 @@ const createOrder = async (data) => {
                 userId: data.userId,
                 total_price: data.totalPrice,
                 transactionID: data.transactionID,
+                userInfoId: data.userInfoId,
             });
 
             const orderProducts = data.products.map((product) => ({
@@ -37,16 +37,6 @@ const createOrder = async (data) => {
             }));
 
             await db.Order_Product.bulkCreate(orderProducts);
-
-            let userInfo = await db.User_Infor.findone({
-                where: { [Op.and]: [{ userId: data.userId }, { isDefault: true }] },
-            });
-
-            if (userInfo) {
-                await userInfo.update({
-                    orderId: order.id,
-                });
-            }
 
             return {
                 EM: 'Create Order succeeds',
@@ -95,7 +85,36 @@ const createOrderDetail = async (data) => {
     }
 };
 
+const getOrdersByUserId = async (userId) => {
+    try {
+        let orders = await db.Order.findAll({
+            where: { userId: userId },
+            attributes: ["id", "order_date", "total_price"],
+            include: [{
+                model: db.Product,
+                attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image'],
+                through: { attributes: ['id', "quantity", "price", "productId", "orderId"] },
+            }],
+            order: [['id', 'DESC']],
+        });
+
+        return {
+            EM: 'Get Data succeeds',
+            EC: 0,
+            DT: orders,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: "Something's wrong with services",
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
 module.exports = {
     createOrder,
     createOrderDetail,
+    getOrdersByUserId,
 };

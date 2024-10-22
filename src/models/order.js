@@ -16,8 +16,8 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: 'orderId',
             });
             Order.belongsTo(models.User), 
-            Order.hasOne(models.User_Infor, {
-                foreignKey: 'orderId',
+            Order.belongsTo(models.User_Infor, {
+                foreignKey: 'userInfoId'
             });
         }
     }
@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
             note: DataTypes.STRING,
             transactionID: DataTypes.STRING,
             userId: DataTypes.INTEGER,
+            userInfoId: DataTypes.INTEGER
         },
         {
             sequelize,

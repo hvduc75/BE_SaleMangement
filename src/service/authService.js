@@ -60,6 +60,7 @@ const handleUserLogin = async (data) => {
                         phone: user.phone,
                         username: user.username,
                         id: user.id,
+                        avatar: user.avatar
                     },
                 };
             }

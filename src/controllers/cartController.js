@@ -55,29 +55,29 @@ const addToCart = async (req, res) => {
     }
 };
 
-const getAllProductByCartId = async (req, res) => {
+// const getAllProductByCartId = async (req, res) => {
+//     try {
+//         let cartId = req.query.cartId;
+//         let data = await cartApiService.getAllProductByCartId(cartId);
+//         return res.status(200).json({
+//             EM: data.EM,
+//             EC: data.EC,
+//             DT: data.DT,
+//         });
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).json({
+//             EM: 'error from server',
+//             EC: '-1',
+//             DT: '',
+//         });
+//     }
+// };
+
+const getAllProductByCartId = async(req, res) => {
     try {
         let cartId = req.query.cartId;
         let data = await cartApiService.getAllProductByCartId(cartId);
-        return res.status(200).json({
-            EM: data.EM,
-            EC: data.EC,
-            DT: data.DT,
-        });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            EM: 'error from server',
-            EC: '-1',
-            DT: '',
-        });
-    }
-};
-
-const getAllProductByCheckbox = async(req, res) => {
-    try {
-        let cartId = req.query.cartId;
-        let data = await cartApiService.getAllProductByCheckbox(cartId);
         return res.status(200).json({
             EM: data.EM,
             EC: data.EC,
@@ -170,7 +170,7 @@ module.exports = {
     readFunc,
     addToCart,
     getAllProductByCartId,
-    getAllProductByCheckbox,
+    getAllProductByCartId,
     updateFunc,
     deleteFunc,
     updateIsChecked,

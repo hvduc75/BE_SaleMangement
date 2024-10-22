@@ -48,7 +48,7 @@ const createNewProducts = async (products) => {
 const getAllProducts = async () => {
     try {
         let products = await db.Product.findAll({
-            attributes: ['id', 'name', 'price', 'sale', 'quantity_current', 'image', 'background'],
+            attributes: ['id', 'name', 'price', 'sale', 'price_current', 'quantity_current', 'image', 'background'],
         });
         return {
             EM: 'Ok',
@@ -68,13 +68,15 @@ const getAllProducts = async () => {
 const getProductById = async (productId) => {
     try {
         let product = await db.Product.findOne({
-            where: {id: productId},
+            where: { id: productId },
             attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image', 'background'],
-            include: [{
-                model: db.ProductDetail,
-                attributes: ['description'],
-            }],
-        })
+            include: [
+                {
+                    model: db.ProductDetail,
+                    attributes: ['description'],
+                },
+            ],
+        });
         return {
             EM: 'Ok',
             EC: 0,
@@ -88,7 +90,7 @@ const getProductById = async (productId) => {
             DT: [],
         };
     }
-}
+};
 
 const getProductWithPagination = async (page, limit, categoryId) => {
     try {
@@ -99,7 +101,7 @@ const getProductWithPagination = async (page, limit, categoryId) => {
             where: whereCondition,
             offset: offset,
             limit: limit,
-            attributes: ['id', 'name', 'price', 'sale', 'quantity_current', 'image', 'background'],
+            attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image', 'background'],
             order: [['id', 'DESC']],
         });
 
@@ -114,6 +116,42 @@ const getProductWithPagination = async (page, limit, categoryId) => {
             EM: 'Ok',
             EC: 0,
             DT: data,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'Somethings wrong with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
+const getProductsByCategoryId = async (categoryId) => {
+    try {
+        let products = await db.Category.findOne({
+            where: { id: categoryId },
+            attributes: ['name'],
+            include: [
+                {
+                    model: db.Product,
+                    attributes: [
+                        'id',
+                        'name',
+                        'price',
+                        'price_current',
+                        'sale',
+                        'quantity_current',
+                        'image',
+                        'background',
+                    ],
+                },
+            ],
+        });
+        return {
+            EM: 'Ok',
+            EC: 0,
+            DT: products,
         };
     } catch (error) {
         console.log(error);
@@ -347,5 +385,6 @@ module.exports = {
     getAllProductWithCondition,
     createUserProduct,
     getAllProducts,
-    getProductById
+    getProductById,
+    getProductsByCategoryId,
 };
