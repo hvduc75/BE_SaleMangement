@@ -8,11 +8,12 @@ import productController from '../controllers/productController';
 import productDetailController from '../controllers/productDetailController';
 import cartController from '../controllers/cartController';
 import userInforController from '../controllers/userInforController';
-import paymentController from "../controllers/paymentcontroller"
-import orderController from "../controllers/orderController"
+import paymentController from '../controllers/paymentcontroller';
+import roleController from '../controllers/roleController';
+import orderController from '../controllers/orderController';
 import multer from 'multer';
 
-import { checkUserJWT } from '../middleware/JWTAction';
+import { checkUserJWT, checkUserPermission } from '../middleware/JWTAction';
 
 // config form data
 const storage = multer.memoryStorage();
@@ -22,7 +23,7 @@ const router = express.Router();
 
 const initApiRoutes = (app) => {
     // check permission and authorization
-    router.all('*', checkUserJWT);
+    router.all('*', checkUserJWT, checkUserPermission);
 
     // user routes
     router.post('/create-user', upload.single('image'), userController.createFunc);
@@ -32,7 +33,7 @@ const initApiRoutes = (app) => {
 
     // user Infor routes
     router.post('/user_infor/create', userInforController.createFunc);
-    router.get('/user_infor/read', userInforController.getUserInforDefault)
+    router.get('/user_infor/read', userInforController.getUserInforDefault);
 
     //banner routes
     router.post('/create-banner', upload.single('image'), bannerController.createFunc);
@@ -48,6 +49,13 @@ const initApiRoutes = (app) => {
 
     // group routes
     router.get('/group/read', groupController.readFunc);
+
+    // role routes
+    router.get('/role/read', roleController.readFunc);
+    router.get("/role/by-group:groupId", roleController.getRoleByGroup)
+    router.post("/role/assign-to-group", roleController.assignRoleToGroup)
+    router.post('/role/create', roleController.createFunc);
+    router.delete('/role/delete', roleController.deleteFunc);
 
     // category routes
     router.post('/create-category', upload.single('image'), categoryController.createFunc);
@@ -89,18 +97,18 @@ const initApiRoutes = (app) => {
     router.get('/cart/read', cartController.readFunc);
     router.get('/cart/getAllProductByCartId', cartController.getAllProductByCartId);
     router.put('/cart/update-quantity', cartController.updateFunc);
-    router.put('/cart/update-isChecked', cartController.updateIsChecked)
+    router.put('/cart/update-isChecked', cartController.updateIsChecked);
     router.delete('/cart/delete-product', cartController.deleteFunc);
-    router.delete('/cart/delete-cart-product', cartController.deleteCartProduct)
+    router.delete('/cart/delete-cart-product', cartController.deleteCartProduct);
 
-    // payment
-    router.post('/payment/vnpay', paymentController.checkout)
-    router.get('/vnpay_return', paymentController.vnpRetun)
+    // payment routes
+    router.post('/payment/vnpay', paymentController.checkout);
+    router.get('/vnpay_return', paymentController.vnpRetun);
 
-    // order router
-    router.post("/order/create", orderController.createFunc)
-    router.post("/order/orderDetail", orderController.createOrderDetail)
-    router.get("/order/getOrdersByUserId", orderController.getOrdersByUserId)
+    // order routes
+    router.post('/order/create', orderController.createFunc);
+    router.post('/order/orderDetail', orderController.createOrderDetail);
+    router.get('/order/getOrdersByUserId', orderController.getOrdersByUserId);
 
     return app.use('/api/v1', router);
 };
