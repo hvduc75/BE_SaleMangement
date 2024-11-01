@@ -60,6 +60,15 @@ const readFunc = async (req, res) => {
                 DT: data.DT,
             });
         }
+        if (req.query.query) {
+            let query = req.query.query;
+            let data = await productApiService.getProductWithSearchText(query);
+            return res.status(200).json({
+                EM: data.EM,
+                EC: data.EC,
+                DT: data.DT,
+            });
+        }
         let data = await productApiService.getAllProducts();
         return res.status(200).json({
             EM: data.EM,
@@ -76,7 +85,7 @@ const readFunc = async (req, res) => {
     }
 };
 
-const getProductById = async(req, res) => {
+const getProductById = async (req, res) => {
     try {
         let productId = req.query.productId;
         let data = await productApiService.getProductById(productId);
@@ -93,7 +102,7 @@ const getProductById = async(req, res) => {
             DT: '',
         });
     }
-}
+};
 
 const getAllProducts = async (req, res) => {
     try {
@@ -143,7 +152,7 @@ const getAllProducts = async (req, res) => {
     }
 };
 
-const getProductsByCategoryId = async(req, res) => {
+const getProductsByCategoryId = async (req, res) => {
     try {
         let categoryId = req.query.categoryId;
         let data = await productApiService.getProductsByCategoryId(categoryId);
@@ -160,7 +169,7 @@ const getProductsByCategoryId = async(req, res) => {
             DT: '',
         });
     }
-}
+};
 
 const updateFunc = async (req, res) => {
     try {
@@ -227,5 +236,5 @@ module.exports = {
     getAllProducts,
     createUserProduct,
     getProductById,
-    getProductsByCategoryId
+    getProductsByCategoryId,
 };

@@ -163,6 +163,77 @@ const getProductsByCategoryId = async (categoryId) => {
     }
 };
 
+const getProductWithSearchText = async (query) => {
+    try {
+        // Bước 1: Tìm sản phẩm có tên khớp với từ khóa
+        let productsByName = await db.Product.findAll({
+            where: {
+                name: {
+                    [Op.like]: `%${query}%`, 
+                },
+            },
+            attributes: [
+                'id',
+                'name',
+                'price',
+                'price_current',
+                'sale',
+                'quantity_current',
+                'image',
+                'background',
+            ],
+        });
+
+        // Lưu lại danh sách ID của các sản phẩm đã tìm thấy theo tên
+        let productIds = productsByName.map((product) => product.id);
+
+        // Bước 2: Tìm sản phẩm theo mô tả, nhưng loại trừ các sản phẩm đã tìm thấy ở Bước 1
+        let productsByDescription = await db.Product.findAll({
+            where: {
+                id: {
+                    [Op.notIn]: productIds, // Loại trừ các sản phẩm đã tìm thấy theo tên
+                },
+            },
+            attributes: [
+                'id',
+                'name',
+                'price',
+                'price_current',
+                'sale',
+                'quantity_current',
+                'image',
+                'background',
+            ],
+            include: [
+                {
+                    model: db.ProductDetail,
+                    where: {
+                        description: {
+                            [Op.like]: `%${query}%`, // Tìm kiếm theo mô tả
+                        },
+                    },
+                },
+            ],
+        });
+
+        // Kết hợp kết quả từ 2 truy vấn
+        let allProducts = [...productsByName, ...productsByDescription];
+
+        return {
+            EM: 'Ok',
+            EC: 0,
+            DT: allProducts, 
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'Somethings wrong with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
 const getAllProductWithCondition = async (condition, userId) => {
     try {
         let products;
@@ -387,4 +458,5 @@ module.exports = {
     getAllProducts,
     getProductById,
     getProductsByCategoryId,
+    getProductWithSearchText,
 };
