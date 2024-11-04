@@ -109,6 +109,8 @@ const initApiRoutes = (app) => {
     router.post('/order/create', orderController.createFunc);
     router.post('/order/orderDetail', orderController.createOrderDetail);
     router.get('/order/getOrdersByUserId', orderController.getOrdersByUserId);
+    router.get('/order/getAllOrderPaginate', orderController.getAllOrderPaginate);
+    router.put('/order/confirmOrder', orderController.confirmOrder)
 
     return app.use('/api/v1', router);
 };

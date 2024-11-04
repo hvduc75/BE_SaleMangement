@@ -14,6 +14,9 @@ module.exports = {
             delivery_date: {
                 type: Sequelize.DATE,
             },
+            order_status: {
+                type: Sequelize.STRING,
+            },
             receive_date: {
                 type: Sequelize.DATE,
             },

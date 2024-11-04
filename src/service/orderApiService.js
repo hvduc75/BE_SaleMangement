@@ -1,4 +1,5 @@
 import db from '../models';
+const { Op, literal } = require('sequelize');
 
 const createOrder = async (data) => {
     try {
@@ -23,6 +24,7 @@ const createOrder = async (data) => {
             const currentDate = new Date();
             const order = await db.Order.create({
                 order_date: currentDate,
+                order_status: 'Chờ Xác Nhận',
                 userId: data.userId,
                 total_price: data.totalPrice,
                 transactionID: data.transactionID,
@@ -87,26 +89,161 @@ const createOrderDetail = async (data) => {
 
 const getOrdersByUserId = async (userId) => {
     try {
-        let orders = await db.Order.findAll({
-            where: { userId: userId },
-            attributes: ["id", "order_date", "total_price"],
-            include: [{
-                model: db.Product,
-                attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image'],
-                through: { attributes: ['id', "quantity", "price", "productId", "orderId"] },
-            }],
+        let offset = (page - 1) * limit;
+        const queryOptions = {
+            offset: offset,
+            limit: limit,
+            attributes: ['id', 'order_date', 'delivery_date', 'receive_date', 'order_status', 'total_price'],
             order: [['id', 'DESC']],
-        });
+        };
+
+        // Kiểm tra nếu condition có giá trị hợp lệ thì thêm điều kiện vào where
+        if (condition !== undefined && condition !== null) {
+            queryOptions.where = { order_status: condition };
+        }
+
+        const { count, rows } = await db.Order.findAndCountAll(queryOptions);
+
+        let totalPages = Math.ceil(count / limit);
+        let data = {
+            totalRows: count,
+            totalPages: totalPages,
+            orders: rows,
+        };
 
         return {
-            EM: 'Get Data succeeds',
+            EM: 'Ok',
             EC: 0,
-            DT: orders,
+            DT: data,
         };
     } catch (error) {
         console.log(error);
         return {
-            EM: "Something's wrong with services",
+            EM: 'somethings wrongs with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
+const getAllOrderPaginate = async (page, limit, date = null) => {
+    try {
+        let offset = (page - 1) * limit;
+        let whereCondition;
+        if (date) {
+            whereCondition = literal(`DATE(order_date) = '${date}'`);
+        }
+
+        const { count, rows } = await db.Order.findAndCountAll({
+            where: whereCondition,
+            offset: offset,
+            limit: limit,
+            attributes: ['id', 'order_date', 'delivery_date', 'receive_date', 'order_status', 'total_price'],
+            order: [['id', 'DESC']],
+        });
+
+        let totalPages = Math.ceil(count / limit);
+        let data = {
+            totalRows: count,
+            totalPages: totalPages,
+            orders: rows,
+        };
+
+        return {
+            EM: 'Ok',
+            EC: 0,
+            DT: data,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'somethings wrongs with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
+const getAllOrderConfirmPaginate = async (page, limit, condition, date = null) => {
+    try {
+        console.log(date, condition);
+        let offset = (page - 1) * limit;
+
+        const whereCondition = {
+            order_status: condition,
+        };
+
+        if (date) {
+            whereCondition[Op.and] = literal(`DATE(order_date) = '${date}'`);
+        }
+
+        const { count, rows } = await db.Order.findAndCountAll({
+            where: whereCondition,
+            offset: offset,
+            limit: limit,
+            attributes: ['id', 'order_date', 'delivery_date', 'receive_date', 'order_status', 'total_price'],
+            order: [['id', 'DESC']],
+        });
+
+        let totalPages = Math.ceil(count / limit);
+        let data = {
+            totalRows: count,
+            totalPages: totalPages,
+            orders: rows,
+        };
+
+        return {
+            EM: 'Ok',
+            EC: 0,
+            DT: data,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'somethings wrongs with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
+const confirmOrder = async (data) => {
+    try {
+        if (!data.id) {
+            return {
+                EM: 'Error with empty Input',
+                EC: 1,
+                DT: '',
+            };
+        }
+        let order = await db.Order.findOne({
+            where: {
+                id: data.id,
+            },
+        });
+
+        if (order) {
+            await order.update({
+                order_status: 'Đang Vận Chuyển',
+                delivery_date: new Date(),
+            });
+
+            return {
+                EM: 'Update order succeeds',
+                EC: 0,
+                DT: '',
+            };
+        } else {
+            return {
+                EM: 'Order not found',
+                EC: 0,
+                DT: '',
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'somethings wrongs with services',
             EC: 1,
             DT: [],
         };
@@ -117,4 +254,7 @@ module.exports = {
     createOrder,
     createOrderDetail,
     getOrdersByUserId,
+    getAllOrderPaginate,
+    getAllOrderConfirmPaginate,
+    confirmOrder,
 };

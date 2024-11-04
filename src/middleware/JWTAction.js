@@ -54,9 +54,7 @@ const checkUserJWT = (req, res, next) => {
 
     if ((cookies && cookies.jwt) || tokenFromHeader) {
         let token = cookies && cookies.jwt ? cookies.jwt : tokenFromHeader;
-        console.log(token);
         let decoded = verifyToken(token, process.env.ACCESS_TOKEN_SECRET);
-        console.log(decoded);
 
         if (decoded) {
             req.user = decoded;
@@ -83,7 +81,6 @@ const checkUserPermission = (req, res, next) => {
     if (req.user) {
         let email = req.user.email;
         let roles = req.user.groupWithRoles.Roles;
-        console.log(roles)
         let currentUrl = req.path;
         if (!roles || roles.length == 0) {
             return res.status(403).json({
