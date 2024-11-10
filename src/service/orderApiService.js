@@ -89,37 +89,25 @@ const createOrderDetail = async (data) => {
 
 const getOrdersByUserId = async (userId) => {
     try {
-        let offset = (page - 1) * limit;
-        const queryOptions = {
-            offset: offset,
-            limit: limit,
-            attributes: ['id', 'order_date', 'delivery_date', 'receive_date', 'order_status', 'total_price'],
+        let orders = await db.Order.findAll({
+            where: { userId: userId },
+            attributes: ["id", "order_date", "total_price"],
+            include: [{
+                model: db.Product,
+                attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image'],
+                through: { attributes: ['id', "quantity", "price", "productId", "orderId"] },
+            }],
             order: [['id', 'DESC']],
-        };
-
-        // Kiểm tra nếu condition có giá trị hợp lệ thì thêm điều kiện vào where
-        if (condition !== undefined && condition !== null) {
-            queryOptions.where = { order_status: condition };
-        }
-
-        const { count, rows } = await db.Order.findAndCountAll(queryOptions);
-
-        let totalPages = Math.ceil(count / limit);
-        let data = {
-            totalRows: count,
-            totalPages: totalPages,
-            orders: rows,
-        };
-
+        });
         return {
-            EM: 'Ok',
+            EM: 'Get Data succeeds',
             EC: 0,
-            DT: data,
+            DT: orders,
         };
     } catch (error) {
         console.log(error);
         return {
-            EM: 'somethings wrongs with services',
+            EM: "Something's wrong with services",
             EC: 1,
             DT: [],
         };
@@ -250,6 +238,83 @@ const confirmOrder = async (data) => {
     }
 };
 
+const getAllOrderInDay = async () => {
+    try {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
+        let orders = await db.Order.findAll({
+            where: {
+                createdAt: {
+                    [Op.between]: [startOfDay, endOfDay], 
+                },
+            },
+            attributes: ['id', 'order_date', 'delivery_date', 'receive_date', 'order_status', 'total_price'],
+            order: [['id', 'DESC']],
+            include: {
+                model: db.User, 
+                attributes: ['username'], 
+            }
+        });
+        return {
+            EM: 'Ok',
+            EC: 0,
+            DT: orders,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'somethings wrongs with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
+const getAllOrderInWeek = async (startDate) => {
+    try {
+        // Đặt lại thời gian cho ngày bắt đầu tuần
+        const startOfWeek = new Date(startDate);
+        startOfWeek.setHours(0, 0, 0, 0); // Đặt thời gian về 00:00:00
+
+        // Tính toán ngày kết thúc của tuần
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Tính 7 ngày tiếp theo (chủ nhật)
+        endOfWeek.setHours(23, 59, 59, 999); // Đặt thời gian về 23:59:59
+
+        // Truy vấn tất cả đơn hàng trong tuần này
+        let orders = await db.Order.findAll({
+            where: {
+                createdAt: {
+                    [Op.between]: [startOfWeek, endOfWeek], // Lọc các đơn hàng trong khoảng thời gian này
+                },
+            },
+            attributes: ['id', 'order_date', 'delivery_date', 'receive_date', 'order_status', 'total_price'],
+            order: [['id', 'DESC']],
+            include: {
+                model: db.User, 
+                attributes: ['username'], 
+            },
+        });
+
+        return {
+            EM: 'Ok',
+            EC: 0,
+            DT: orders,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'Something went wrong with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
 module.exports = {
     createOrder,
     createOrderDetail,
@@ -257,4 +322,6 @@ module.exports = {
     getAllOrderPaginate,
     getAllOrderConfirmPaginate,
     confirmOrder,
+    getAllOrderInDay,
+    getAllOrderInWeek
 };

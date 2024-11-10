@@ -59,8 +59,12 @@ const getAllOrderPaginate = async (req, res) => {
     try {
         let page = req.query.page;
         let limit = req.query.limit;
-        let date = req.query.date && req.query.date !== 'undefined' && req.query.date !== 'null'? req.query.date : null;
-        let condition = req.query.condition && req.query.condition !== 'undefined' && req.query.condition !== 'null' ? req.query.condition : null;
+        let date =
+            req.query.date && req.query.date !== 'undefined' && req.query.date !== 'null' ? req.query.date : null;
+        let condition =
+            req.query.condition && req.query.condition !== 'undefined' && req.query.condition !== 'null'
+                ? req.query.condition
+                : null;
         console.log(date, condition);
         let data;
 
@@ -110,10 +114,49 @@ const confirmOrder = async (req, res) => {
     }
 };
 
+const getAllOrderInDay = async (req, res) => {
+    try {
+        let data = await orderApiService.getAllOrderInDay();
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            EM: 'error from server',
+            EC: '-1',
+            DT: '',
+        });
+    }
+};
+
+const getAllOrderInWeek = async (req, res) => {
+    try {
+        let startDate = req.query.startDate;
+        let data = await orderApiService.getAllOrderInWeek(startDate);
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            EM: 'error from server',
+            EC: '-1',
+            DT: '',
+        });
+    }
+};
+
 module.exports = {
     createFunc,
     createOrderDetail,
     getOrdersByUserId,
     getAllOrderPaginate,
     confirmOrder,
+    getAllOrderInDay,
+    getAllOrderInWeek
 };

@@ -110,7 +110,9 @@ const initApiRoutes = (app) => {
     router.post('/order/orderDetail', orderController.createOrderDetail);
     router.get('/order/getOrdersByUserId', orderController.getOrdersByUserId);
     router.get('/order/getAllOrderPaginate', orderController.getAllOrderPaginate);
-    router.put('/order/confirmOrder', orderController.confirmOrder)
+    router.get('/order/getAllOrderInDay', orderController.getAllOrderInDay);
+    router.get('/order/getAllOrderInWeek', orderController.getAllOrderInWeek);
+    router.put('/order/confirmOrder', orderController.confirmOrder);
 
     return app.use('/api/v1', router);
 };
