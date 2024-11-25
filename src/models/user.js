@@ -13,6 +13,9 @@ module.exports = (sequelize, DataTypes) => {
                 through: models.User_Product,
                 foreignKey: 'userId',
             });
+            User.hasMany(models.User_Product, {
+                foreignKey: 'userId',
+            });
             User.belongsTo(models.Group);
             User.hasOne(models.Cart, {
                 foreignKey: 'userId',

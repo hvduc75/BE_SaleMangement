@@ -276,7 +276,7 @@ const getAllProductWithCondition = async (condition, userId) => {
                     },
                 ],
                 limit: 48,
-                // order: [[db.User_Product, "viewNum", "DESC"]],
+                order: [[db.Product, db.User_Product, "viewNum", "DESC"]],
             });
         }
         if (condition === 'productFavorite') {
