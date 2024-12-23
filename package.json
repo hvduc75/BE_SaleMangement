@@ -17,6 +17,7 @@
     "@babel/core": "7.15.5",
     "@babel/node": "7.25.0",
     "@babel/preset-env": "7.25.0",
+    "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "body-parser": "1.20.2",
     "config": "^3.3.12",
@@ -28,6 +29,7 @@
     "moment": "2.29.4",
     "multer": "^1.4.5-lts.1",
     "mysql2": "3.11.0",
+    "node-cron": "^3.0.3",
     "nodemon": "^3.1.7",
     "sequelize": "6.13.0",
     "sequelize-cli": "6.3.0"

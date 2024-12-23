@@ -18,28 +18,29 @@ const createFunc = async (req, res) => {
     }
 };
 
-const createOrderDetail = async (req, res) => {
-    try {
-        let data = await orderApiService.createOrder(req.body);
-        return res.status(200).json({
-            EM: data.EM,
-            EC: data.EC,
-            DT: data.DT,
-        });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            EM: 'error from server',
-            EC: '-1',
-            DT: '',
-        });
-    }
-};
+// const createOrderDetail = async (req, res) => {
+//     try {
+//         let data = await orderApiService.createOrder(req.body);
+//         return res.status(200).json({
+//             EM: data.EM,
+//             EC: data.EC,
+//             DT: data.DT,
+//         });
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).json({
+//             EM: 'error from server',
+//             EC: '-1',
+//             DT: '',
+//         });
+//     }
+// };
 
 const getOrdersByUserId = async (req, res) => {
     try {
         let userId = req.query.userId;
-        let data = await orderApiService.getOrdersByUserId(userId);
+        let condition = req.query.condition;
+        let data = await orderApiService.getOrdersByUserId(userId, condition);
         return res.status(200).json({
             EM: data.EM,
             EC: data.EC,
@@ -96,9 +97,67 @@ const getAllOrderPaginate = async (req, res) => {
     }
 };
 
+const getAllOrderByCondition = async (req, res) => {
+    try {
+        let page = req.query.page;
+        let limit = req.query.limit;
+        let condition = req.query.condition;
+        let data = await orderApiService.getAllOrderByCondition(page, limit, condition);
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            EM: 'error from server',
+            EC: '-1',
+            DT: '',
+        });
+    }
+};
+
+const getOrderDetail = async (req, res) => {
+    try {
+        let orderId = req.query.orderId;
+        let data = await orderApiService.getOrderDetail(orderId);
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            EM: 'error from server',
+            EC: '-1',
+            DT: '',
+        });
+    }
+}
+
 const confirmOrder = async (req, res) => {
     try {
         let data = await orderApiService.confirmOrder(req.body);
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            EM: 'error from server',
+            EC: '-1',
+            DT: '',
+        });
+    }
+};
+
+const cancelOrder = async (req, res) => {
+    try {
+        let data = await orderApiService.cancelOrder(req.body);
         return res.status(200).json({
             EM: data.EM,
             EC: data.EC,
@@ -153,10 +212,13 @@ const getAllOrderInWeek = async (req, res) => {
 
 module.exports = {
     createFunc,
-    createOrderDetail,
+    // createOrderDetail,
     getOrdersByUserId,
     getAllOrderPaginate,
     confirmOrder,
+    cancelOrder,
     getAllOrderInDay,
-    getAllOrderInWeek
+    getAllOrderInWeek,
+    getAllOrderByCondition,
+    getOrderDetail
 };

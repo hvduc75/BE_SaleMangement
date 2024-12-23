@@ -12,7 +12,8 @@ const nonSecurePaths = [
     '/product/getAllProduct',
     '/product/getProductById',
     '/payment/vnpay',
-    '/vnpay_return'
+    '/vnpay_return',
+    '/vnpay/refund',
 ];
 
 const createJWT = (payload, JWT_SECRET, JWT_EXPIRES_IN) => {

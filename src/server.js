@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import initApiRoutes from "./routes/api";
 import connectDB from "./config/connectDB";
 import configCors from "./config/cors";
+import './cron/cronJobs';
 
 dotenv.config();
 

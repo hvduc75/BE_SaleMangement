@@ -104,16 +104,20 @@ const initApiRoutes = (app) => {
 
     // payment routes
     router.post('/payment/vnpay', paymentController.checkout);
-    router.get('/vnpay_return', paymentController.vnpRetun);
+    router.get('/vnpay_return', paymentController.vnpReturn);
+    router.post('/vnpay/refund', paymentController.refund)
 
     // order routes
     router.post('/order/create', orderController.createFunc);
-    router.post('/order/orderDetail', orderController.createOrderDetail);
+    // router.post('/order/orderDetail', orderController.createOrderDetail);
     router.get('/order/getOrdersByUserId', orderController.getOrdersByUserId);
     router.get('/order/getAllOrderPaginate', orderController.getAllOrderPaginate);
     router.get('/order/getAllOrderInDay', orderController.getAllOrderInDay);
+    router.get('/order/getAllOrderByCondition', orderController.getAllOrderByCondition);
+    router.get('/order/getOrderDetail', orderController.getOrderDetail);
     router.get('/order/getAllOrderInWeek', orderController.getAllOrderInWeek);
     router.put('/order/confirmOrder', orderController.confirmOrder);
+    router.put('/order/cancelOrder', orderController.cancelOrder);
 
     return app.use('/api/v1', router);
 };

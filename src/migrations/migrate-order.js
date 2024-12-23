@@ -15,7 +15,7 @@ module.exports = {
                 type: Sequelize.DATE,
             },
             order_status: {
-                type: Sequelize.STRING,
+                type: Sequelize.INTEGER,
             },
             receive_date: {
                 type: Sequelize.DATE,
@@ -26,6 +26,9 @@ module.exports = {
             transactionID: {
                 type: Sequelize.STRING,
             },
+            payment_method: {
+                type: Sequelize.STRING,
+            },
             userId: {
                 type: Sequelize.INTEGER,
             },
@@ -34,6 +37,13 @@ module.exports = {
             },
             total_Price: {
                 type: Sequelize.DECIMAL(15, 0),
+            },
+            expires_at: { 
+                type: Sequelize.DATE,
+                allowNull: true,
+            },
+            payment_status: {
+                type: Sequelize.INTEGER,
             },
             createdAt: {
                 allowNull: false,

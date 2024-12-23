@@ -19,10 +19,12 @@ const createFunc = async (data) => {
             };
         }
         let userInfo = await db.User_Infor.findOne({
-            where: { isDefault: true },
+            where: {
+                [Op.and]: [{ isDefault: true }, { userId: data.userId }],
+            },
         });
 
-        if(userInfo){
+        if (userInfo) {
             return {
                 EM: 'Can Not Make User Info',
                 EC: 1,
