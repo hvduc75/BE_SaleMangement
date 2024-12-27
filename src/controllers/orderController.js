@@ -18,24 +18,6 @@ const createFunc = async (req, res) => {
     }
 };
 
-// const createOrderDetail = async (req, res) => {
-//     try {
-//         let data = await orderApiService.createOrder(req.body);
-//         return res.status(200).json({
-//             EM: data.EM,
-//             EC: data.EC,
-//             DT: data.DT,
-//         });
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(500).json({
-//             EM: 'error from server',
-//             EC: '-1',
-//             DT: '',
-//         });
-//     }
-// };
-
 const getOrdersByUserId = async (req, res) => {
     try {
         let userId = req.query.userId;
@@ -137,6 +119,29 @@ const getOrderDetail = async (req, res) => {
     }
 }
 
+const getOrderBySearchText = async (req, res) => {
+    try {
+        let condition = req.query.condition; 
+        let searchText = req.query.searchText; 
+        let userId = req.query.userId; 
+
+        let data = await orderApiService.getOrderBySearchText(condition, searchText, userId);
+
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            EM: 'Error from server',
+            EC: '-1',
+            DT: '',
+        });
+    }
+};
+
 const confirmOrder = async (req, res) => {
     try {
         let data = await orderApiService.confirmOrder(req.body);
@@ -158,6 +163,26 @@ const confirmOrder = async (req, res) => {
 const cancelOrder = async (req, res) => {
     try {
         let data = await orderApiService.cancelOrder(req.body);
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            EM: 'error from server',
+            EC: '-1',
+            DT: '',
+        });
+    }
+};
+
+const ConfirmDeliveredOrder = async (req, res) => {
+    try {
+        console.log(req.body.image)
+        req.body.image = req.file ? req.file.buffer : null;
+        let data = await orderApiService.ConfirmDeliveredOrder(req.body);
         return res.status(200).json({
             EM: data.EM,
             EC: data.EC,
@@ -212,7 +237,6 @@ const getAllOrderInWeek = async (req, res) => {
 
 module.exports = {
     createFunc,
-    // createOrderDetail,
     getOrdersByUserId,
     getAllOrderPaginate,
     confirmOrder,
@@ -220,5 +244,7 @@ module.exports = {
     getAllOrderInDay,
     getAllOrderInWeek,
     getAllOrderByCondition,
-    getOrderDetail
+    getOrderDetail,
+    getOrderBySearchText,
+    ConfirmDeliveredOrder
 };

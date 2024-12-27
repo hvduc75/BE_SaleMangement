@@ -4,6 +4,7 @@ const moment = require('moment-timezone');
 
 const createOrder = async (data) => {
     try {
+        // Kiểm tra dữ liệu đầu vào
         if (!data.totalPrice || !data.userId || !data.products || !data.userInfoId) {
             return {
                 EM: 'Error with empty Input',
@@ -12,20 +13,31 @@ const createOrder = async (data) => {
             };
         }
 
-        // Lấy thời gian hiện tại theo múi giờ Việt Nam
+        // Lấy thời gian hiện tại và thời gian hết hạn theo múi giờ Việt Nam
         const vietnamDate = moment().tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss');
         const expiresAt = moment().tz('Asia/Ho_Chi_Minh').add(10, 'minutes').format('YYYY-MM-DD HH:mm:ss');
 
-        const order = await db.Order.create({
+        // Dữ liệu cơ bản cho đơn hàng
+        const orderData = {
             order_date: vietnamDate,
-            expires_at: expiresAt,
             userId: data.userId,
             total_price: data.totalPrice,
             userInfoId: data.userInfoId,
             payment_status: 0,
-            payment_method: 'NCB',
-        });
+            payment_method: data.payment_method,
+        };
 
+        // Thêm thời gian hết hạn cho phương thức thanh toán VNPay (NCB)
+        if (data.payment_method === 'NCB') {
+            orderData.expires_at = expiresAt;
+        } else if (data.payment_method === 'COD') {
+            orderData.order_status = 0;
+        }
+
+        // Tạo đơn hàng
+        const order = await db.Order.create(orderData);
+
+        // Thêm sản phẩm vào đơn hàng
         const orderProducts = data.products.map((product) => ({
             orderId: order.id,
             productId: product.id,
@@ -41,7 +53,7 @@ const createOrder = async (data) => {
             DT: order,
         };
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return {
             EM: "Something's wrong with services",
             EC: 1,
@@ -51,7 +63,6 @@ const createOrder = async (data) => {
 };
 
 const updateFunc = async (orderId, paymentStatus, transactionId = null) => {
-    console.log(orderId, transactionId, paymentStatus);
     try {
         if (!orderId || !paymentStatus) {
             return {
@@ -61,46 +72,61 @@ const updateFunc = async (orderId, paymentStatus, transactionId = null) => {
             };
         }
 
-        // let orderStatus;
-        // if (paymentStatus === 'success') {
-        //     orderStatus = 'Đã Thanh Toán';
-        // } else if (paymentStatus === 'failed') {
-        //     orderStatus = 'Thanh Toán Thất Bại';
-        // } else {
-        //     return {
-        //         EM: 'Invalid payment status',
-        //         EC: 1,
-        //         DT: '',
-        //     };
-        // }
+        if (paymentStatus === 'failed') {
+            await db.Order_Product.destroy({
+                where: {
+                    orderId: orderId,
+                },
+            });
 
-        const updatedOrder = await db.Order.update(
-            {
-                payment_status: paymentStatus,
-                order_status: 0,
-                transactionID: transactionId,
-                expires_at: null,
-            },
-            {
+            const deletedOrder = await db.Order.destroy({
                 where: {
                     id: orderId,
                 },
-            },
-        );
+            });
 
-        if (updatedOrder[0] === 0) {
+            if (deletedOrder === 0) {
+                return {
+                    EM: 'Order not found or already deleted',
+                    EC: 1,
+                    DT: '',
+                };
+            }
+
             return {
-                EM: 'Order not found or no changes made',
-                EC: 1,
+                EM: 'Order and associated products deleted successfully',
+                EC: 0,
                 DT: '',
             };
-        }
+        } else {
+            const updatedOrder = await db.Order.update(
+                {
+                    payment_status: 1,
+                    order_status: 0,
+                    transactionID: transactionId,
+                    expires_at: null,
+                },
+                {
+                    where: {
+                        id: orderId,
+                    },
+                },
+            );
 
-        return {
-            EM: 'Order updated successfully',
-            EC: 0,
-            DT: updatedOrder,
-        };
+            if (updatedOrder[0] === 0) {
+                return {
+                    EM: 'Order not found or no changes made',
+                    EC: 1,
+                    DT: '',
+                };
+            }
+
+            return {
+                EM: 'Order updated successfully',
+                EC: 0,
+                DT: updatedOrder,
+            };
+        }
     } catch (error) {
         console.log(error);
         return {
@@ -110,44 +136,6 @@ const updateFunc = async (orderId, paymentStatus, transactionId = null) => {
         };
     }
 };
-
-// const createOrder = async (data) => {
-//     try {
-//         if (!data.totalPrice || !data.userId || !data.userInfoId) {
-//             return {
-//                 EM: 'Error with empty Input',
-//                 EC: 1,
-//                 DT: '',
-//             };
-//         }
-
-//         const currentDate = new Date();
-//         const vietnamDate = new Date(currentDate.getTime() + 7 * 60 * 60 * 1000); // Múi giờ Việt Nam
-//         const expiresAt = new Date(vietnamDate.getTime() + 10 * 60 * 1000); // Thêm 10 phút
-
-//         const order = await db.Order.create({
-//             order_date: vietnamDate,
-//             expires_at: expiresAt,
-//             order_status: 'Chờ Thanh Toán',
-//             userId: data.userId,
-//             total_price: data.totalPrice,
-//             userInfoId: data.userInfoId,
-//         });
-
-//         return {
-//             EM: 'Create Order succeeds',
-//             EC: 0,
-//             DT: order,
-//         };
-//     } catch (error) {
-//         console.log(error);
-//         return {
-//             EM: "Something's wrong with services",
-//             EC: 1,
-//             DT: [],
-//         };
-//     }
-// };
 
 const createOrderDetail = async (data) => {
     try {
@@ -217,6 +205,77 @@ const getOrdersByUserId = async (userId, condition) => {
                     model: db.Product,
                     attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image'],
                     through: { attributes: ['id', 'quantity', 'price', 'productId', 'orderId'] },
+                },
+            ],
+            order: [['id', 'DESC']],
+        });
+
+        return {
+            EM: 'Get Data succeeds',
+            EC: 0,
+            DT: orders,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: "Something's wrong with services",
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
+const getOrderBySearchText = async (condition, searchText, userId) => {
+    let orderStatus, paymentStatus;
+
+    if (condition === 'Payment') {
+        paymentStatus = 0;
+    } else if (condition === 'All') {
+        paymentStatus = { [Op.ne]: 0 };
+    } else if (condition === 'Shipping') {
+        orderStatus = 1;
+    } else if (condition === 'Processing') {
+        orderStatus = 0;
+    } else if (condition === 'Delivered') {
+        orderStatus = 2;
+    } else if (condition === 'Canceled') {
+        orderStatus = 3;
+    }
+
+    let whereCondition = {};
+
+    if (userId !== 'null') {
+        whereCondition.userId = userId; 
+    }
+
+    if (orderStatus !== undefined) {
+        whereCondition.order_status = orderStatus;
+    }
+
+    if (paymentStatus !== undefined) {
+        whereCondition.payment_status = paymentStatus;
+    }
+    console.log(whereCondition);
+
+    if (!isNaN(searchText)) {
+        whereCondition.id = searchText;
+    }
+
+    let productCondition = {};
+    if (isNaN(searchText) && searchText) {
+        productCondition.name = { [Op.like]: `%${searchText}%` };
+    }
+
+    try {
+        let orders = await db.Order.findAll({
+            where: whereCondition,
+            attributes: ['id', 'order_date', 'total_price', 'payment_method', 'order_status', 'payment_status'],
+            include: [
+                {
+                    model: db.Product,
+                    attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image'],
+                    through: { attributes: ['id', 'quantity', 'price', 'productId', 'orderId'] },
+                    where: Object.keys(productCondition).length > 0 ? productCondition : undefined, 
                 },
             ],
             order: [['id', 'DESC']],
@@ -321,7 +380,7 @@ const getOrderDetail = async (orderId) => {
                 },
                 {
                     model: db.User_Infor,
-                    attributes: ['id', 'province', 'district', 'commune', 'address'],
+                    attributes: ['id', 'userName', 'phone', 'province', 'district', 'commune', 'address'],
                 },
             ],
             order: [['id', 'DESC']],
@@ -475,11 +534,53 @@ const cancelOrder = async (data) => {
                 DT: '',
             };
         }
+
         let order = await db.Order.findOne({
-            where: {
-                id: data.id,
-            },
+            where: { id: data.id },
+            include: [
+                {
+                    model: db.Order_Product,
+                    include: [
+                        {
+                            model: db.Product,
+                        },
+                    ],
+                },
+            ],
         });
+
+        if (!order) {
+            return {
+                EM: 'Order not found',
+                EC: 1,
+                DT: '',
+            };
+        }
+
+        if (order.order_status === null) {
+            await order.update({
+                order_status: 3,
+                payment_status: 3,
+                expires_at: null,
+            });
+
+            for (const orderProduct of order.Order_Products) {
+                const product = orderProduct.Product;
+
+                if (product) {
+                    await product.update({
+                        quantity_current: product.quantity_current + orderProduct.quantity,
+                        quantity_sold: Math.max((product.quantity_sold || 0) - orderProduct.quantity, 0),
+                    });
+                }
+            }
+
+            return {
+                EM: 'Cancel order succeeds and product quantities updated',
+                EC: 0,
+                DT: '',
+            };
+        }
 
         if (order.order_status !== 0) {
             let message = '';
@@ -495,27 +596,66 @@ const cancelOrder = async (data) => {
             };
         }
 
-        if (order) {
-            await order.update({
-                order_status: 3,
-            });
+        await order.update({ order_status: 3 });
 
+        for (const orderProduct of order.Order_Products) {
+            const product = orderProduct.Product;
+
+            if (product) {
+                await product.update({
+                    quantity_current: product.quantity_current + orderProduct.quantity,
+                    quantity_sold: Math.max((product.quantity_sold || 0) - orderProduct.quantity, 0),
+                });
+            }
+        }
+
+        return {
+            EM: 'Cancel order succeeds and product quantities updated',
+            EC: 0,
+            DT: '',
+        };
+    } catch (error) {
+        console.error('Error in cancelOrder:', error);
+        return {
+            EM: 'Something went wrong with the service',
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
+const ConfirmDeliveredOrder = async (data) => {
+    try {
+        if (!data.id || !data.image) {
             return {
-                EM: 'Cancel order succeeds',
-                EC: 0,
-                DT: '',
-            };
-        } else {
-            return {
-                EM: 'Order not found',
-                EC: 0,
+                EM: 'Error with empty Input',
+                EC: 1,
                 DT: '',
             };
         }
-    } catch (error) {
-        console.log(error);
+
+        let order = await db.Order.findOne({
+            where: { id: data.id },
+        });
+
+        if (!order) {
+            return {
+                EM: 'Order not found',
+                EC: 1,
+                DT: '',
+            };
+        }
+        await order.update({ order_status: 2, payment_status: 1, delivered_Image: data.image });
+
         return {
-            EM: 'somethings wrongs with services',
+            EM: 'Confirm Delivered Order Success',
+            EC: 0,
+            DT: '',
+        };
+    } catch (error) {
+        console.error('Error in cancelOrder:', error);
+        return {
+            EM: 'Something went wrong with the service',
             EC: 1,
             DT: [],
         };
@@ -547,7 +687,7 @@ const checkRefundOrder = async (orderId) => {
                     DT: '',
                 };
             }
-    
+
             if (order.payment_status !== 1 || order.payment_method !== 'NCB') {
                 message =
                     'Không thể hoàn tiền vì trạng thái thanh toán chưa hoàn tất hoặc phương thức thanh toán không hợp lệ';
@@ -660,21 +800,19 @@ const getAllOrderInDay = async () => {
 
 const getAllOrderInWeek = async (startDate) => {
     try {
-        // Đặt lại thời gian cho ngày bắt đầu tuần
         const startOfWeek = new Date(startDate);
-        startOfWeek.setHours(0, 0, 0, 0); // Đặt thời gian về 00:00:00
+        startOfWeek.setHours(0, 0, 0, 0); 
 
-        // Tính toán ngày kết thúc của tuần
         const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6); // Tính 7 ngày tiếp theo (chủ nhật)
-        endOfWeek.setHours(23, 59, 59, 999); // Đặt thời gian về 23:59:59
+        endOfWeek.setDate(startOfWeek.getDate() + 6); 
+        endOfWeek.setHours(23, 59, 59, 999); 
 
-        // Truy vấn tất cả đơn hàng trong tuần này
         let orders = await db.Order.findAll({
             where: {
                 createdAt: {
-                    [Op.between]: [startOfWeek, endOfWeek], // Lọc các đơn hàng trong khoảng thời gian này
+                    [Op.between]: [startOfWeek, endOfWeek], 
                 },
+                payment_status: 1,
             },
             attributes: ['id', 'order_date', 'delivery_date', 'receive_date', 'order_status', 'total_price'],
             order: [['id', 'DESC']],
@@ -713,5 +851,7 @@ module.exports = {
     updateFunc,
     getAllOrderByCondition,
     getOrderDetail,
-    checkRefundOrder
+    checkRefundOrder,
+    getOrderBySearchText,
+    ConfirmDeliveredOrder,
 };

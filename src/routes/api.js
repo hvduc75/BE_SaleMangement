@@ -28,12 +28,17 @@ const initApiRoutes = (app) => {
     // user routes
     router.post('/create-user', upload.single('image'), userController.createFunc);
     router.get('/get-All-User', userController.readFunc);
+    router.get('/get-All-User-By-Week', userController.getAllUserByWeek);
+    router.get('/get-user-by-id', userController.getUserById);
     router.put('/update-user', upload.single('image'), userController.updateFunc);
+    router.put('/update-profile', upload.single('avatar'), userController.updateProfile);
     router.delete('/delete-user', userController.deleteFunc);
 
     // user Infor routes
     router.post('/user_infor/create', userInforController.createFunc);
     router.get('/user_infor/read', userInforController.getUserInforDefault);
+    router.get('/user_infor/getListUserInfo', userInforController.getListUserInfo);
+    router.put('/user_infor/updateUserInfo', userInforController.updateUserInfo);
 
     //banner routes
     router.post('/create-banner', upload.single('image'), bannerController.createFunc);
@@ -109,15 +114,16 @@ const initApiRoutes = (app) => {
 
     // order routes
     router.post('/order/create', orderController.createFunc);
-    // router.post('/order/orderDetail', orderController.createOrderDetail);
     router.get('/order/getOrdersByUserId', orderController.getOrdersByUserId);
     router.get('/order/getAllOrderPaginate', orderController.getAllOrderPaginate);
     router.get('/order/getAllOrderInDay', orderController.getAllOrderInDay);
     router.get('/order/getAllOrderByCondition', orderController.getAllOrderByCondition);
     router.get('/order/getOrderDetail', orderController.getOrderDetail);
+    router.get('/order/getOrderBySearchText', orderController.getOrderBySearchText);
     router.get('/order/getAllOrderInWeek', orderController.getAllOrderInWeek);
     router.put('/order/confirmOrder', orderController.confirmOrder);
     router.put('/order/cancelOrder', orderController.cancelOrder);
+    router.put('/order/ConfirmDeliveredOrder', upload.single('image'), orderController.ConfirmDeliveredOrder);
 
     return app.use('/api/v1', router);
 };

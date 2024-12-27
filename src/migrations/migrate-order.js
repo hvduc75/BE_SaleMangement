@@ -38,6 +38,9 @@ module.exports = {
             total_Price: {
                 type: Sequelize.DECIMAL(15, 0),
             },
+            delivered_Image: {
+              type: Sequelize.BLOB('long'),
+            },
             expires_at: { 
                 type: Sequelize.DATE,
                 allowNull: true,

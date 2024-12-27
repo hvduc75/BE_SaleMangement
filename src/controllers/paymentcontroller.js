@@ -94,10 +94,8 @@ const vnpReturn = async (req, res) => {
 
         try {
             if (responseCode === '00') {
-                const updateResult = await orderApiService.updateFunc(orderId, 1, transactionId);
-
+                const updateResult = await orderApiService.updateFunc(orderId, 'success', transactionId);
                 if (updateResult.EC === 0) {
-                    // Chuyển hướng về trang trạng thái checkout
                     return res.redirect('http://localhost:3000/checkout/status?status=success');
                 } else {
                     return res.json({
@@ -106,9 +104,9 @@ const vnpReturn = async (req, res) => {
                     });
                 }
             } else {
-                // await orderApiService.updateFunc(orderId, 'failed');
+                await orderApiService.updateFunc(orderId, 'failed');
                 return res.redirect('http://localhost:3000/checkout/status?status=failed');
-            }
+            }            
         } catch (error) {
             console.error(error);
             return res.json({

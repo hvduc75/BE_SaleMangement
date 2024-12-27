@@ -23,7 +23,16 @@ module.exports = {
             typeAddress: {
                 type: Sequelize.STRING,
             },
+            userName: {
+                type: Sequelize.STRING,
+            },
+            phone: {
+                type: Sequelize.STRING,
+            },
             isDefault: {
+                type: Sequelize.BOOLEAN,
+            },
+            isDeleted: {
                 type: Sequelize.BOOLEAN,
             },
             userId: {

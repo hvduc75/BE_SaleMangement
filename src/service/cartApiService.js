@@ -123,8 +123,8 @@ const getAllProductByCartId = async (cartId) => {
                         'quantity_sold',
                     ],
                     through: {
-                        // where: { isChecked: true }, 
-                        attributes: ['quantity', 'isChecked'], 
+                        // where: { isChecked: true },
+                        attributes: ['quantity', 'isChecked'],
                     },
                 },
             ],
@@ -158,7 +158,20 @@ const addToCart = async (data) => {
                 [Op.and]: [{ cartId: data.cartId }, { productId: data.productId }],
             },
         });
+        let product = await db.Product.findOne({
+            where: {
+                id: data.productId,
+            },
+        });
+        let productQuantity = product.quantity_current;
         if (productCart) {
+            if (productCart.quantity + data.quantity > productQuantity) {
+                return {
+                    EM: `Số lượng sản phẩm tồn kho không đủ, hiện đang có ${productQuantity} sản phẩm`,
+                    EC: 1,
+                    DT: [],
+                };
+            }
             await productCart.update({
                 quantity: productCart.quantity + data.quantity,
             });
@@ -167,7 +180,14 @@ const addToCart = async (data) => {
                 EC: 0,
                 DT: [],
             };
-        }   
+        }
+        if (data.quantity > productQuantity) {
+            return {
+                EM: `Số lượng sản phẩm tồn kho không đủ, hiện đang có ${productQuantity} sản phẩm`,
+                EC: 1,
+                DT: [],
+            };
+        }
         await db.Product_Cart.create({
             cartId: data.cartId,
             productId: data.productId,
@@ -203,6 +223,19 @@ const updateFunc = async (data) => {
             },
         });
         if (productCart) {
+            let product = await db.Product.findOne({
+                where: {
+                    id: data.productId,
+                },
+            });
+            let productQuantity = product.quantity_current;
+            if (data.quantity > productQuantity) {
+                return {
+                    EM: 'Số lượng sản phẩm tồn kho không đủ',
+                    EC: 1,
+                    DT: [],
+                };
+            }
             await productCart.update({
                 quantity: data.quantity,
             });
@@ -307,10 +340,9 @@ const deleteFunc = async (cartId, productId) => {
     }
 };
 
-const deleteCartProducts = async (data) => {
+const deleteCartProducts = async (data) => { 
     try {
-        console.log(data)
-        if (!data.cartId || !data.products ) {
+        if (!data.cartId || !data.products) {
             return {
                 EM: 'Input is Empty or Invalid',
                 EC: 1,
@@ -318,8 +350,8 @@ const deleteCartProducts = async (data) => {
             };
         }
 
-        // Mảng để lưu kết quả xóa sản phẩm
         const deleteResults = [];
+        let hasError = false; // Cờ báo lỗi
 
         for (let product of data.products) {
             let productCart = await db.Product_Cart.findOne({
@@ -328,25 +360,63 @@ const deleteCartProducts = async (data) => {
                 },
             });
 
-            if (productCart) {
-                await productCart.destroy();
+            if (!productCart) {
                 deleteResults.push({
-                    productId: data.id,
-                    message: 'Delete Product In Cart Success',
-                    success: true,
-                });
-            } else {
-                deleteResults.push({
-                    productId: data.id,
+                    productId: product.id,
                     message: 'ProductCart not found',
                     success: false,
                 });
+                hasError = true;
+                continue;
             }
+
+            let productUpdate = await db.Product.findOne({
+                where: { id: product.id },
+            });
+
+            if (productUpdate.quantity_current < product.quantity) {
+                // Sản phẩm không đủ số lượng
+                await productCart.update({
+                    quantity: productUpdate.quantity_current,
+                });
+                deleteResults.push({
+                    productId: product.id,
+                    message: 'Not enough stock, updated quantity in cart',
+                    success: false,
+                });
+                hasError = true;
+                continue;
+            }
+
+            if (productUpdate.quantity_current === 0) {
+                // Sản phẩm hết hàng
+                await productCart.destroy();
+                deleteResults.push({
+                    productId: product.id,
+                    message: 'Product is out of stock, removed from cart',
+                    success: false,
+                });
+                hasError = true;
+                continue;
+            }
+
+            // Giảm số lượng tạm thời
+            await productUpdate.update({
+                quantity_current: productUpdate.quantity_current - product.quantity,
+                quantity_sold: (Number(productUpdate.quantity_sold) || 0) + Number(product.quantity),
+            });                              
+
+            await productCart.destroy();
+            deleteResults.push({
+                productId: product.id,
+                message: 'Delete Product In Cart Success',
+                success: true,
+            });
         }
 
         return {
-            EM: 'Delete Products In Cart Processed',
-            EC: 0,
+            EM: hasError ? 'Some products had issues' : 'Delete Products In Cart Processed',
+            EC: hasError ? 1 : 0,
             DT: deleteResults,
         };
     } catch (error) {
@@ -357,8 +427,7 @@ const deleteCartProducts = async (data) => {
             DT: [],
         };
     }
-}
-
+};
 
 module.exports = {
     createFunc,
@@ -367,5 +436,6 @@ module.exports = {
     updateFunc,
     deleteFunc,
     updateIsChecked,
-    getAllProductByCartId, deleteCartProducts
+    getAllProductByCartId,
+    deleteCartProducts,
 };

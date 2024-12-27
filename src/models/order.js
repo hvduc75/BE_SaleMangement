@@ -33,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
             payment_method: DataTypes.STRING,
             userId: DataTypes.INTEGER,
             userInfoId: DataTypes.INTEGER,
+            delivered_Image: DataTypes.BLOB('long'),
             expires_at: DataTypes.DATE,
             payment_status: DataTypes.INTEGER, // 0: Pending, 1: completed, 2: Refunded, 3: canceled
         },

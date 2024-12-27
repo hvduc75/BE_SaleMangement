@@ -21,7 +21,10 @@ module.exports = (sequelize, DataTypes) => {
       commune: DataTypes.STRING,
       address: DataTypes.STRING,
       typeAddress: DataTypes.STRING,
+      userName: DataTypes.STRING,
+      phone: DataTypes.STRING,
       isDefault: DataTypes.BOOLEAN,
+      isDeleted: DataTypes.BOOLEAN,
       userId: DataTypes.INTEGER
     },
     {
