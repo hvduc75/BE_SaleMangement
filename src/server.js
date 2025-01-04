@@ -4,9 +4,11 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 
 import initApiRoutes from "./routes/api";
+import initOAuthApiRoutes from "./routes/oauthApi";
 import connectDB from "./config/connectDB";
 import configCors from "./config/cors";
 import './cron/cronJobs';
+import configLoginWIthGoogle from "./controllers/social/GoogleController";
 
 dotenv.config();
 
@@ -28,7 +30,9 @@ connectDB();
 
 // config router
 initApiRoutes(app);
+initOAuthApiRoutes(app);
 
+configLoginWIthGoogle();
 app.listen(PORT, () => {
   console.log("Server is running on PORT: " + PORT);
 });

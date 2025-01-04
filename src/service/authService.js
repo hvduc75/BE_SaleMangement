@@ -6,6 +6,7 @@ import { checkEmailExist, checkPhoneExist, hashUserPassword } from './userApiSer
 import { createFunc } from '../service/cartApiService';
 import { getGroupWithRoles } from './JWTService';
 import { createJWT, verifyToken } from '../middleware/JWTAction';
+import { raw } from 'body-parser';
 
 const checkPassword = (inputPassword, hashPassword) => {
     return bcrypt.compareSync(inputPassword, hashPassword);
@@ -187,8 +188,37 @@ const handleRefreshToken = async (data) => {
     }
 };
 
+const upsertUserSocialMedia = async (typeAcc, dataRaw) => {
+    try {
+        let user = null;
+        if (typeAcc === 'GOOGLE') {
+            user = await db.User.findOne({
+                where: {
+                    email: dataRaw.email,
+                    type: typeAcc,
+                },
+                raw: true,
+            });
+            if (!user) {
+                await db.User.create({
+                    email: dataRaw.email,
+                    username: dataRaw.username,
+                    googleId: dataRaw.googleId,
+                    groupId: 1,
+                    type: typeAcc,
+                });
+                user = user.get({ plain: true });
+            }
+        }
+        return user;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 module.exports = {
     handleUserLogin,
     handleUserRegister,
     handleRefreshToken,
+    upsertUserSocialMedia,
 };
