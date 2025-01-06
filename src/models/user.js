@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
             phone: DataTypes.STRING,
             avatar: DataTypes.BLOB('long'),
             groupId: DataTypes.INTEGER,
-            refresh_token: DataTypes.STRING,
+            refresh_token: DataTypes.TEXT,
             refresh_expired: DataTypes.DATE,
         },
         {

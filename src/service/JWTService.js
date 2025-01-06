@@ -3,10 +3,10 @@ import db from "../models";
 const getGroupWithRoles = async (user) => {
   let roles = await db.Group.findOne({
     where: { id: user.groupId },
-    attributes: ["id", "name", "description"],
+    attributes: ["name"],
     include: {
       model: db.Role,
-      attributes: ["id", "url", "description"],
+      attributes: ["url"],
       through: { attributes: [] },
     },
   });

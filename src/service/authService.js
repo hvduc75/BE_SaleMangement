@@ -35,15 +35,16 @@ const handleUserLogin = async (data) => {
                     process.env.ACCESS_TOKEN_SECRET,
                     process.env.ACCESS_TOKEN_EXPIRES_IN,
                 );
+
                 let refresh_token = createJWT(
                     payload,
                     process.env.REFRESH_TOKEN_SECRET,
                     process.env.REFRESH_TOKEN_EXPIRES_IN,
                 );
+
                 let refresh_expired = new Date();
                 refresh_expired.setDate(refresh_expired.getDate() + 2);
 
-                // co luu nhung duoi db dell thay doi dell hieu luon
                 await user.update({ refresh_token, refresh_expired });
 
                 // kiem tra de tao cart
@@ -143,7 +144,6 @@ const handleRefreshToken = async (data) => {
         });
 
         if (user) {
-            // refresh_token === user.refresh_token nen check them dk nay ma duoi db luu ma khong thay doi
             if (new Date() < user.refresh_expired) {
                 const payload = {
                     email: user.email,

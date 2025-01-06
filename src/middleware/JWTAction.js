@@ -6,6 +6,7 @@ const nonSecurePaths = [
     '/auth/logout',
     '/auth/login',
     '/auth/register',
+    // '/account',
     '/auth/refresh_token',
     '/get-all-category',
     '/get-all-banner',
@@ -53,8 +54,8 @@ const checkUserJWT = (req, res, next) => {
     let cookies = req.cookies;
     let tokenFromHeader = extractToken(req);
 
-    if ((cookies && cookies.jwt) || tokenFromHeader) {
-        let token = cookies && cookies.jwt ? cookies.jwt : tokenFromHeader;
+    if ((cookies && cookies.access_token) || tokenFromHeader) {
+        let token = cookies && cookies.access_token ? cookies.access_token : tokenFromHeader;
         let decoded = verifyToken(token, process.env.ACCESS_TOKEN_SECRET);
 
         if (decoded) {

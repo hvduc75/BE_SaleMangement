@@ -39,7 +39,7 @@ module.exports = {
                 type: Sequelize.INTEGER,
             },
             refresh_token: {
-                type: Sequelize.STRING,
+                type: Sequelize.TEXT,
             },
             refresh_expired: {
                 type: Sequelize.DATE,

@@ -1,3 +1,4 @@
+import { raw } from 'body-parser';
 import db from '../models';
 import bcrypt from 'bcryptjs';
 const { Op, literal } = require('sequelize');
@@ -307,6 +308,47 @@ const deleteUser = async (userId) => {
     }
 };
 
+const getAccount = async (email, access_token, groupWithRoles) => {
+    try {
+        let user = await db.User.findOne({
+            where: { email: email },
+            raw: true,
+        });
+        if (user) {
+            return {
+                EM: 'Get data success',
+                EC: 0,
+                DT: {
+                    access_token: access_token,
+                    refresh_token: user.refresh_token,
+                    groupWithRoles: groupWithRoles,
+                    role: groupWithRoles.name,
+                    email: user.email,
+                    phone: user.phone,
+                    username: user.username,
+                    id: user.id,
+                    avatar: user.avatar,
+                    gender: user.sex,
+                    birthDay: user.birthDay,
+                },
+            };
+        } else {
+            return {
+                EM: 'Get data success',
+                EC: 0,
+                DT: [],
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'somethings wrongs with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+}
+
 module.exports = {
     createNewUser,
     getAllUser,
@@ -318,5 +360,6 @@ module.exports = {
     hashUserPassword,
     updateProfile,
     getUserById,
-    getAllUserByWeek
+    getAllUserByWeek,
+    getAccount
 };

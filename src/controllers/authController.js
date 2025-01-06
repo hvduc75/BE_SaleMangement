@@ -3,11 +3,15 @@ import authService from "../service/authService";
 const handleLogin = async (req, res) => {
   try {
     let data = await authService.handleUserLogin(req.body);
-    // set cookie
+    // console.log(data);
     if (data && data.DT && data.DT.access_token) {
-      res.cookie("jwt", data.DT.access_token, {
+      res.cookie("access_token", data.DT.access_token, {
         httpOnly: true,
         maxAge: 60 * 60 * 1000,
+      });
+      res.cookie("refresh_token", data.DT.refresh_token, {
+        httpOnly: true,
+        maxAge: 60 * 60 * 48 * 1000,
       });
     }
     return res.status(200).json({
@@ -45,7 +49,8 @@ const handleRegister = async (req, res) => {
 
 const handleLogout = async (req, res) => {
   try {
-    res.clearCookie("jwt")
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
     return res.status(200).json({
       EM: "clear cookies done!", 
       EC: 0,
@@ -63,7 +68,13 @@ const handleLogout = async (req, res) => {
 
 const handleRefreshToken = async (req, res) => {
   try {
-    let data = await authService.handleRefreshToken(req.body);
+    let data = await authService.handleRefreshToken(req.cookies);
+    if (data && data.DT && data.DT.access_token) {
+      res.cookie("access_token", data.DT.access_token, {
+        httpOnly: true,
+        maxAge: 60 * 60 * 1000,
+      });
+    }
     return res.status(200).json({
       EM: data.EM,
       EC: data.EC,

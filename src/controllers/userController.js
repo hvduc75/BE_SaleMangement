@@ -142,6 +142,24 @@ const deleteFunc = async (req, res) => {
     }
 };
 
+const getAccount = async (req, res) => {
+    try {
+        let data = await userApiService.getAccount(req.user.email, req.token, req.user.groupWithRoles);
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            EM: 'error from server',
+            EC: '-1',
+            DT: '',
+        });
+    }
+}
+
 module.exports = {
     createFunc,
     readFunc,
@@ -150,4 +168,5 @@ module.exports = {
     updateProfile,
     getUserById,
     getAllUserByWeek,
+    getAccount
 };
