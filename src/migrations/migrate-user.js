@@ -32,6 +32,9 @@ module.exports = {
             phone: {
                 type: Sequelize.STRING,
             },
+            tokenLogin: {
+              type: Sequelize.STRING
+            },
             avatar: {
                 type: Sequelize.BLOB('long'),
             },

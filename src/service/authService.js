@@ -1,12 +1,12 @@
 import db from '../models';
 import bcrypt from 'bcryptjs';
 import { Op } from 'sequelize';
+const { v4: uuidv4 } = require('uuid');
 
 import { checkEmailExist, checkPhoneExist, hashUserPassword } from './userApiService';
 import { createFunc } from '../service/cartApiService';
 import { getGroupWithRoles } from './JWTService';
 import { createJWT, verifyToken } from '../middleware/JWTAction';
-import { raw } from 'body-parser';
 
 const checkPassword = (inputPassword, hashPassword) => {
     return bcrypt.compareSync(inputPassword, hashPassword);
@@ -191,28 +191,97 @@ const handleRefreshToken = async (data) => {
 const upsertUserSocialMedia = async (typeAcc, dataRaw) => {
     try {
         let user = null;
+        const tokenLogin = uuidv4();
         if (typeAcc === 'GOOGLE') {
             user = await db.User.findOne({
                 where: {
                     email: dataRaw.email,
-                    type: typeAcc,
                 },
-                raw: true,
             });
             if (!user) {
-                await db.User.create({
+                user = await db.User.create({
                     email: dataRaw.email,
                     username: dataRaw.username,
-                    googleId: dataRaw.googleId,
                     groupId: 1,
                     type: typeAcc,
+                    tokenLogin: tokenLogin,
                 });
-                user = user.get({ plain: true });
             }
+            let groupWithRoles = await getGroupWithRoles(user);
+            let payload = {
+                email: user.email,
+                groupWithRoles,
+                username: user.name,
+            };
+
+            let refresh_token = createJWT(
+                payload,
+                process.env.REFRESH_TOKEN_SECRET,
+                process.env.REFRESH_TOKEN_EXPIRES_IN,
+            );
+
+            let refresh_expired = new Date();
+            refresh_expired.setDate(refresh_expired.getDate() + 2);
+
+            await user.update({ refresh_token, refresh_expired, tokenLogin });
+            await createFunc(user.id);
         }
         return user;
     } catch (error) {
         console.log(error);
+    }
+};
+
+const checkTokenLogin = async (userId, tokenLogin) => {
+    try {
+        const user = await db.User.findOne({
+            where: { id: userId, tokenLogin: tokenLogin },
+        });
+
+        if (user) {
+            let newTokenLogin = uuidv4();
+            user.update({ tokenLogin: newTokenLogin });
+
+            let groupWithRoles = await getGroupWithRoles(user);
+            let payload = {
+                email: user.email,
+                groupWithRoles,
+                username: user.name,
+            };
+
+            let access_token = createJWT(payload, process.env.ACCESS_TOKEN_SECRET, process.env.ACCESS_TOKEN_EXPIRES_IN);
+
+            return {
+                EM: 'Ok',
+                EC: 0,
+                DT: {
+                    access_token: access_token,
+                    refresh_token: user.refresh_token,
+                    groupWithRoles: groupWithRoles,
+                    role: groupWithRoles.name,
+                    email: user.email,
+                    phone: user.phone,
+                    username: user.username,
+                    id: user.id,
+                    avatar: user.avatar,
+                    gender: user.sex,
+                    birthDay: user.birthDay,
+                },
+            };
+        } else {
+            return {
+                EM: 'User not found',
+                EC: 1,
+                DT: '',
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'Something went wrong in the service',
+            EC: -2,
+            DT: [],
+        };
     }
 };
 
@@ -221,4 +290,5 @@ module.exports = {
     handleUserRegister,
     handleRefreshToken,
     upsertUserSocialMedia,
+    checkTokenLogin,
 };

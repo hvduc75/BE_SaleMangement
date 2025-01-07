@@ -6,7 +6,7 @@ const nonSecurePaths = [
     '/auth/logout',
     '/auth/login',
     '/auth/register',
-    // '/account',
+    '/checkTokenLogin',
     '/auth/refresh_token',
     '/get-all-category',
     '/get-all-banner',

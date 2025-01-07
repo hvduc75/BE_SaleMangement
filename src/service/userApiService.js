@@ -131,16 +131,16 @@ const getUserById = async (userId) => {
 const getAllUserByWeek = async (startDate) => {
     try {
         const startOfWeek = new Date(startDate);
-        startOfWeek.setHours(0, 0, 0, 0); 
+        startOfWeek.setHours(0, 0, 0, 0);
 
         const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6); 
-        endOfWeek.setHours(23, 59, 59, 999); 
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
 
         let users = await db.User.findAll({
             where: {
                 createdAt: {
-                    [Op.between]: [startOfWeek, endOfWeek], 
+                    [Op.between]: [startOfWeek, endOfWeek],
                 },
             },
         });
@@ -347,7 +347,48 @@ const getAccount = async (email, access_token, groupWithRoles) => {
             DT: [],
         };
     }
-}
+};
+
+const updatePhone = async (data) => {
+    try {
+        let isPhoneExist = await checkPhoneExist(data.phone);
+        if (isPhoneExist) {
+            return {
+                EM: 'The phone number is already exist',
+                EC: 1,
+                DT: '',
+            };
+        }
+        let user = await db.User.findOne({
+            where: { email: data.email },
+        });
+
+        if (!user) {
+            return {
+                EM: 'User not found',
+                EC: 2,
+                DT: '',
+            };
+        }
+
+        await user.update({
+            phone: data.phone,
+        });
+
+        return {
+            EM: 'Update User Success',
+            EC: 0,
+            DT: '',
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'somethings wrongs with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+};
 
 module.exports = {
     createNewUser,
@@ -361,5 +402,6 @@ module.exports = {
     updateProfile,
     getUserById,
     getAllUserByWeek,
-    getAccount
+    getAccount,
+    updatePhone,
 };

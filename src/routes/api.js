@@ -32,6 +32,7 @@ const initApiRoutes = (app) => {
     router.get('/get-user-by-id', userController.getUserById);
     router.put('/update-user', upload.single('image'), userController.updateFunc);
     router.put('/update-profile', upload.single('avatar'), userController.updateProfile);
+    router.put('/update-phone',  userController.updatePhone);
     router.delete('/delete-user', userController.deleteFunc);
     router.get('/account', userController.getAccount);
 
