@@ -15,8 +15,7 @@ const configLoginWIthGoogle = () => {
                 const typeAcc = 'GOOGLE';
                 const dataRaw = {
                     username: profile.displayName,
-                    email: profile.emails && profile.emails.length > 0 ? profile.emails[0].value : '',
-                    googleId: profile.id,
+                    email: profile.emails && profile.emails.length > 0 ? profile.emails[0].value : profile.id,
                 };
                 let user = await authServices.upsertUserSocialMedia(typeAcc, dataRaw);
                 return cb(null, user);

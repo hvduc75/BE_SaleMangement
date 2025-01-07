@@ -192,40 +192,34 @@ const upsertUserSocialMedia = async (typeAcc, dataRaw) => {
     try {
         let user = null;
         const tokenLogin = uuidv4();
-        if (typeAcc === 'GOOGLE') {
-            user = await db.User.findOne({
-                where: {
-                    email: dataRaw.email,
-                },
+        user = await db.User.findOne({
+            where: {
+                email: dataRaw.email,
+            },
+        });
+        if (!user) {
+            user = await db.User.create({
+                email: dataRaw.email,
+                username: dataRaw.username,
+                groupId: 1,
+                type: typeAcc,
+                tokenLogin: tokenLogin,
             });
-            if (!user) {
-                user = await db.User.create({
-                    email: dataRaw.email,
-                    username: dataRaw.username,
-                    groupId: 1,
-                    type: typeAcc,
-                    tokenLogin: tokenLogin,
-                });
-            }
-            let groupWithRoles = await getGroupWithRoles(user);
-            let payload = {
-                email: user.email,
-                groupWithRoles,
-                username: user.name,
-            };
-
-            let refresh_token = createJWT(
-                payload,
-                process.env.REFRESH_TOKEN_SECRET,
-                process.env.REFRESH_TOKEN_EXPIRES_IN,
-            );
-
-            let refresh_expired = new Date();
-            refresh_expired.setDate(refresh_expired.getDate() + 2);
-
-            await user.update({ refresh_token, refresh_expired, tokenLogin });
-            await createFunc(user.id);
         }
+        let groupWithRoles = await getGroupWithRoles(user);
+        let payload = {
+            email: user.email,
+            groupWithRoles,
+            username: user.name,
+        };
+
+        let refresh_token = createJWT(payload, process.env.REFRESH_TOKEN_SECRET, process.env.REFRESH_TOKEN_EXPIRES_IN);
+
+        let refresh_expired = new Date();
+        refresh_expired.setDate(refresh_expired.getDate() + 2);
+
+        await user.update({ refresh_token, refresh_expired, tokenLogin });
+        await createFunc(user.id);
         return user;
     } catch (error) {
         console.log(error);

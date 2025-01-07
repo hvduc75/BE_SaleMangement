@@ -11,13 +11,21 @@ const initOAuthApiRoutes = (app) => {
         '/google/redirect',
         passport.authenticate('google', { failureRedirect: '/login', session: false }),
         (req, res) => {
-            res.redirect(
-              `${process.env.REACT_URL}/code/${req.user?.id}/${req.user?.tokenLogin}`
-            );
+            res.redirect(`${process.env.REACT_URL}/code/${req.user?.id}/${req.user?.tokenLogin}`);
         },
     );
 
     router.get('/checkTokenLogin', authController.checkTokenLogin);
+
+    router.get('/auth/facebook', passport.authenticate("facebook", { session: false, scope: ["email"] }));
+
+    router.get(
+        '/facebook/redirect',
+        passport.authenticate('facebook', { failureRedirect: '/login', session: false }),
+        (req, res) => {
+            res.redirect(`${process.env.REACT_URL}/code/${req.user?.id}/${req.user?.tokenLogin}`);
+        },
+    );
 
     return app.use('/', router);
 };

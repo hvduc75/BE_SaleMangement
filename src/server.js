@@ -1,14 +1,15 @@
-import express from "express";
-import dotenv from "dotenv";
-import bodyParser from "body-parser";
-import cookieParser from "cookie-parser";
+import express from 'express';
+import dotenv from 'dotenv';
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
-import initApiRoutes from "./routes/api";
-import initOAuthApiRoutes from "./routes/oauthApi";
-import connectDB from "./config/connectDB";
-import configCors from "./config/cors";
+import initApiRoutes from './routes/api';
+import initOAuthApiRoutes from './routes/oauthApi';
+import connectDB from './config/connectDB';
+import configCors from './config/cors';
 import './cron/cronJobs';
-import configLoginWIthGoogle from "./controllers/social/GoogleController";
+import configLoginWIthGoogle from './controllers/social/GoogleController';
+import configLoginWIthFacebook from './controllers/social/FacebookController';
 
 dotenv.config();
 
@@ -33,6 +34,8 @@ initApiRoutes(app);
 initOAuthApiRoutes(app);
 
 configLoginWIthGoogle();
+configLoginWIthFacebook();
+
 app.listen(PORT, () => {
-  console.log("Server is running on PORT: " + PORT);
+    console.log('Server is running on PORT: ' + PORT);
 });
