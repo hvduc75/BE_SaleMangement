@@ -193,8 +193,8 @@ const getOrdersByUserId = async (userId, condition) => {
 
     if (paymentStatus !== undefined) {
         whereCondition.payment_status = paymentStatus;
+        whereCondition.payment_method = "NCB";
     }
-    console.log(whereCondition);
 
     try {
         let orders = await db.Order.findAll({
