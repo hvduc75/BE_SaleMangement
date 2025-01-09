@@ -35,6 +35,9 @@ module.exports = {
             tokenLogin: {
               type: Sequelize.STRING
             },
+            code: {
+              type: Sequelize.STRING
+            },
             avatar: {
                 type: Sequelize.BLOB('long'),
             },

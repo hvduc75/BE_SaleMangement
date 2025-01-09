@@ -279,10 +279,117 @@ const checkTokenLogin = async (userId, tokenLogin) => {
     }
 };
 
+const checkUserWithEmail = async (email) => {
+    try {
+        const user = await db.User.findOne({
+            where: { email: email, type: 'LOCAL' },
+        });
+
+        if (user) {
+            return {
+                EM: 'Find User Success',
+                EC: 0,
+                DT: '',
+            };
+        } else {
+            return {
+                EM: 'User not found',
+                EC: 1,
+                DT: '',
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'Something went wrong in the service',
+            EC: -2,
+            DT: [],
+        };
+    }
+};
+
+const updateUserCode = async (email, otp) => {
+    try {
+        const user = await db.User.findOne({
+            where: { email: email, type: 'LOCAL' },
+        });
+
+        if (user) {
+            await user.update({ code: otp });
+            return {
+                EM: 'Update User Code Success',
+                EC: 0,
+                DT: '',
+            };
+        } else {
+            return {
+                EM: 'User not found',
+                EC: 1,
+                DT: '',
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'Something went wrong in the service',
+            EC: -2,
+            DT: [],
+        };
+    }
+};
+
+const resetPassword = async (data) => {
+    if (!data.email || !data.otp || !data.password) {
+        return {
+            EM: 'Missing Parameter',
+            EC: 1,
+            DT: '',
+        };
+    }
+    try {
+        const user = await db.User.findOne({
+            where: { email: data.email, type: 'LOCAL' },
+        });
+
+        if (user) {
+            if (data.otp !== user.code) {
+                return {
+                    EM: 'OTP InValid',
+                    EC: 1,
+                    DT: '',
+                };
+            }
+            let hashPassword = hashUserPassword(data.password);
+            user.update({ password: hashPassword, code: null });
+            return {
+                EM: 'Reset Password Success',
+                EC: 0,
+                DT: '',
+            };
+        } else {
+            return {
+                EM: 'User not found',
+                EC: 1,
+                DT: '',
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'Something went wrong in the service',
+            EC: -2,
+            DT: [],
+        };
+    }
+};
+
 module.exports = {
     handleUserLogin,
     handleUserRegister,
     handleRefreshToken,
     upsertUserSocialMedia,
     checkTokenLogin,
+    updateUserCode,
+    checkUserWithEmail,
+    resetPassword,
 };

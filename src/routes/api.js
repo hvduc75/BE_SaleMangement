@@ -53,6 +53,8 @@ const initApiRoutes = (app) => {
     router.post('/auth/register', authController.handleRegister);
     router.post('/auth/logout', authController.handleLogout);
     router.post('/auth/refresh_token', authController.handleRefreshToken);
+    router.post('/auth/send-code', authController.sendCode);
+    router.post('/auth/resetPassword', authController.resetPassword);
 
     // group routes
     router.get('/group/read', groupController.readFunc);
