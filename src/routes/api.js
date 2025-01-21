@@ -32,7 +32,7 @@ const initApiRoutes = (app) => {
     router.get('/get-user-by-id', userController.getUserById);
     router.put('/update-user', upload.single('image'), userController.updateFunc);
     router.put('/update-profile', upload.single('avatar'), userController.updateProfile);
-    router.put('/update-phone',  userController.updatePhone);
+    router.put('/update-phone', userController.updatePhone);
     router.delete('/delete-user', userController.deleteFunc);
     router.get('/account', userController.getAccount);
 
@@ -61,9 +61,9 @@ const initApiRoutes = (app) => {
 
     // role routes
     router.get('/role/read', roleController.readFunc);
-    router.get("/role/by-group:groupId", roleController.getRoleByGroup)
+    router.get('/role/by-group:groupId', roleController.getRoleByGroup);
     router.post('/role/create', roleController.createFunc);
-    router.post("/role/assign-to-group", roleController.assignRoleToGroup)
+    router.post('/role/assign-to-group', roleController.assignRoleToGroup);
     router.put('/role/update', roleController.updateFunc);
     router.delete('/role/delete', roleController.deleteFunc);
 
@@ -98,7 +98,11 @@ const initApiRoutes = (app) => {
     router.delete('/product/delete', productController.deleteFunc);
 
     // product detail routes
-    router.post('/product_detail/create-or-update', productDetailController.createUpdateFunc);
+    router.post(
+        '/product_detail/create-or-update',
+        upload.fields([{ name: 'images', maxCount: 10 }]),
+        productDetailController.createUpdateFunc,
+    );
     router.get('/product_detail/read', productDetailController.readFunc);
 
     // cart routes
@@ -114,7 +118,7 @@ const initApiRoutes = (app) => {
     // payment routes
     router.post('/payment/vnpay', paymentController.checkout);
     router.get('/vnpay_return', paymentController.vnpReturn);
-    router.post('/vnpay/refund', paymentController.refund)
+    router.post('/vnpay/refund', paymentController.refund);
 
     // order routes
     router.post('/order/create', orderController.createFunc);

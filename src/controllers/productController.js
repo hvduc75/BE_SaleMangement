@@ -2,9 +2,8 @@ import productApiService from '../service/productApiService';
 
 const createFunc = async (req, res) => {
     try {
-        // Lấy danh sách hình ảnh và nền từ req.files
-        const images = req.files['image']; // Hình ảnh
-        const backgrounds = req.files['background']; // Nền
+        const images = req.files['image']; 
+        const backgrounds = req.files['background']; 
 
         // Kiểm tra và chuyển đổi các trường trong req.body thành mảng nếu chúng không phải là mảng
         const { name, price, sale, quantity, categoryId } = req.body;

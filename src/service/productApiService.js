@@ -72,6 +72,10 @@ const getProductById = async (productId) => {
             attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image', 'background'],
             include: [
                 {
+                    model: db.ProductImage,
+                    attributes: ['image'],
+                },
+                {
                     model: db.ProductDetail,
                     attributes: ['description'],
                 },
@@ -169,19 +173,10 @@ const getProductWithSearchText = async (query) => {
         let productsByName = await db.Product.findAll({
             where: {
                 name: {
-                    [Op.like]: `%${query}%`, 
+                    [Op.like]: `%${query}%`,
                 },
             },
-            attributes: [
-                'id',
-                'name',
-                'price',
-                'price_current',
-                'sale',
-                'quantity_current',
-                'image',
-                'background',
-            ],
+            attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image', 'background'],
         });
 
         // Lưu lại danh sách ID của các sản phẩm đã tìm thấy theo tên
@@ -194,16 +189,7 @@ const getProductWithSearchText = async (query) => {
                     [Op.notIn]: productIds, // Loại trừ các sản phẩm đã tìm thấy theo tên
                 },
             },
-            attributes: [
-                'id',
-                'name',
-                'price',
-                'price_current',
-                'sale',
-                'quantity_current',
-                'image',
-                'background',
-            ],
+            attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image', 'background'],
             include: [
                 {
                     model: db.ProductDetail,
@@ -222,7 +208,7 @@ const getProductWithSearchText = async (query) => {
         return {
             EM: 'Ok',
             EC: 0,
-            DT: allProducts, 
+            DT: allProducts,
         };
     } catch (error) {
         console.log(error);
@@ -276,7 +262,7 @@ const getAllProductWithCondition = async (condition, userId) => {
                     },
                 ],
                 limit: 48,
-                order: [[db.Product, db.User_Product, "viewNum", "DESC"]],
+                order: [[db.Product, db.User_Product, 'viewNum', 'DESC']],
             });
         }
         if (condition === 'productFavorite') {

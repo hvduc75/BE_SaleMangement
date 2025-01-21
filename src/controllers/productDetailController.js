@@ -1,7 +1,13 @@
-import productDetailApiService from "../service/productDetailApiService";
+import productDetailApiService from '../service/productDetailApiService';
 
 const createUpdateFunc = async (req, res) => {
     try {
+        const productImages = req.files['images'];
+        console.log(productImages);
+        const images = productImages && productImages.map((image) => ({
+            image: image ? image.buffer : null,
+        }));
+        req.body.images = images;
         let data = await productDetailApiService.createUpdateProductDetail(req.body);
         return res.status(200).json({
             EM: data.EM,
@@ -16,7 +22,7 @@ const createUpdateFunc = async (req, res) => {
             DT: '',
         });
     }
-}
+};
 
 const readFunc = async (req, res) => {
     try {
@@ -35,8 +41,9 @@ const readFunc = async (req, res) => {
             DT: '',
         });
     }
-}
+};
 
 module.exports = {
-    createUpdateFunc, readFunc
-}
+    createUpdateFunc,
+    readFunc,
+};

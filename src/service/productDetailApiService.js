@@ -3,10 +3,21 @@ import db from '../models';
 const getProductDetail = async (id) => {
     console.log(id);
     try {
-        let data = await db.ProductDetail.findOne({
-            where: { productId: id },
-            attributes: ['id', 'description', 'contentMarkdown', 'productId'],
+        let data = await db.Product.findOne({
+            where: { id: id },
+            attributes: ['id'],
+            include: [
+                {
+                    model: db.ProductImage,
+                    attributes: ['image'],
+                },
+                {
+                    model: db.ProductDetail,
+                    attributes: ['id', 'description', 'contentMarkdown'],
+                },
+            ],
         });
+
         return {
             EM: 'Get Product Detail success',
             EC: 0,
@@ -37,6 +48,13 @@ const createUpdateProductDetail = async (data) => {
                 contentMarkdown: data.contentMarkdown,
                 productId: data.productId,
             });
+
+            const convertedProductImages = data.images.map((image) => ({
+                image: image.image,
+                productId: data.productId,
+            }));
+            await db.ProductImage.bulkCreate(convertedProductImages);
+
             return {
                 EM: 'Create Product Detail success',
                 EC: 0,
@@ -51,6 +69,21 @@ const createUpdateProductDetail = async (data) => {
                 productDetail.contentMarkdown = data.contentMarkdown;
                 await productDetail.save();
             }
+
+            await db.ProductImage.destroy({
+                where: { productId: data.productId },
+            });
+
+            const convertedProductImages =
+                data.images &&
+                data.images.map((image) => ({
+                    image: image.image,
+                    productId: data.productId,
+                }));
+            if (convertedProductImages) {
+                await db.ProductImage.bulkCreate(convertedProductImages);
+            }
+
             return {
                 EM: 'Save Product Detail success',
                 EC: 0,
