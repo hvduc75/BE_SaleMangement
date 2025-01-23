@@ -143,9 +143,19 @@ const getFeedbacksByProductId = async (productId, starFilter, page, limit) => {
     try {
         const offset = (page - 1) * limit;
 
-        let feedbacks = await db.Product.findOne({
-            where: { id: productId },
-            attributes: ['id', 'name', 'star'],
+        const feedbacks = await db.Order_Product.findAndCountAll({
+            where: {
+                productId,
+                ...(starFilter !== "null" && {
+                    star: starFilter,
+                }),
+            },
+            attributes: [
+                'id',
+                'star',
+                'description',
+                'feedbackDate',
+            ],
             include: [
                 {
                     model: db.Order,
@@ -156,31 +166,10 @@ const getFeedbacksByProductId = async (productId, starFilter, page, limit) => {
                             attributes: ['id', 'username', 'avatar'],
                         },
                     ],
-                    through: {
-                        model: db.Order_Product,
-                        attributes: [
-                            'id',
-                            'quantity',
-                            'price',
-                            'productId',
-                            'orderId',
-                            'star',
-                            'description',
-                            'feedbackDate',
-                        ],
-                        where:
-                            starFilter !== 'null'
-                                ? { star: starFilter }
-                                : {
-                                      star: {
-                                          [Op.ne]: null,
-                                      },
-                                  },
-                    },
                 },
             ],
-            offset: offset,
-            limit: limit,
+            offset,
+            limit,
         });
 
         return {
@@ -189,7 +178,7 @@ const getFeedbacksByProductId = async (productId, starFilter, page, limit) => {
             DT: feedbacks,
         };
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return {
             EM: 'Something went wrong with services',
             EC: 1,
