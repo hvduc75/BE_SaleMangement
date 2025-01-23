@@ -2,8 +2,8 @@ import productApiService from '../service/productApiService';
 
 const createFunc = async (req, res) => {
     try {
-        const images = req.files['image']; 
-        const backgrounds = req.files['background']; 
+        const images = req.files['image'];
+        const backgrounds = req.files['background'];
 
         // Kiểm tra và chuyển đổi các trường trong req.body thành mảng nếu chúng không phải là mảng
         const { name, price, sale, quantity, categoryId } = req.body;
@@ -210,8 +210,29 @@ const deleteFunc = async (req, res) => {
 
 const createUserProduct = async (req, res) => {
     try {
-        console.log(req.body);
         let data = await productApiService.createUserProduct(req.body);
+        return res.status(200).json({
+            EM: data.EM,
+            EC: data.EC,
+            DT: data.DT,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            EM: 'Error from server',
+            EC: '-1',
+            DT: '',
+        });
+    }
+};
+
+const getFeedbacksByProductId = async (req, res) => {
+    try {
+        let productId = req.query.productId;
+        let starFilter = req.query.starFilter;
+        let page = req.query.page;
+        let limit = req.query.limit;
+        let data = await productApiService.getFeedbacksByProductId(productId, starFilter, page, +limit);
         return res.status(200).json({
             EM: data.EM,
             EC: data.EC,
@@ -236,4 +257,5 @@ module.exports = {
     createUserProduct,
     getProductById,
     getProductsByCategoryId,
+    getFeedbacksByProductId,
 };

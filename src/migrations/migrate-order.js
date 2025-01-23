@@ -48,6 +48,9 @@ module.exports = {
             payment_status: {
                 type: Sequelize.INTEGER,
             },
+            isFeedback: {
+                type: Sequelize.BOOLEAN,
+            },
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE,

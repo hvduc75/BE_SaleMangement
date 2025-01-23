@@ -35,8 +35,11 @@ module.exports = {
       categoryId: {
         type: Sequelize.INTEGER
       },
-      orderId: {
-        type: Sequelize.INTEGER
+      // orderId: {
+      //   type: Sequelize.INTEGER
+      // },
+      star: {
+        type: Sequelize.DECIMAL(2,1)
       },
       createdAt: {
         allowNull: false,

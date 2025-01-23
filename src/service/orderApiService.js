@@ -193,21 +193,32 @@ const getOrdersByUserId = async (userId, condition) => {
 
     if (paymentStatus !== undefined) {
         whereCondition.payment_status = paymentStatus;
-        whereCondition.payment_method = "NCB";
+        if (paymentStatus == 0) {
+            whereCondition.payment_method = 'NCB';
+        }
     }
 
     try {
         let orders = await db.Order.findAll({
             where: whereCondition,
-            attributes: ['id', 'order_date', 'total_price', 'payment_method', 'order_status', 'payment_status'],
+            attributes: [
+                'id',
+                'order_date',
+                'total_price',
+                'payment_method',
+                'order_status',
+                'payment_status',
+                'isFeedback',
+            ],
             include: [
                 {
                     model: db.Product,
                     attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image'],
-                    through: { attributes: ['id', 'quantity', 'price', 'productId', 'orderId'] },
+                    through: { attributes: ['id', 'quantity', 'price', 'productId', 'orderId', 'star', 'description'] },
                 },
             ],
-            order: [['id', 'DESC']],
+            // order: [['id', 'DESC']],
+            order: [['updatedAt', 'DESC']],
         });
 
         return {
@@ -245,7 +256,7 @@ const getOrderBySearchText = async (condition, searchText, userId) => {
     let whereCondition = {};
 
     if (userId !== 'null') {
-        whereCondition.userId = userId; 
+        whereCondition.userId = userId;
     }
 
     if (orderStatus !== undefined) {
@@ -275,7 +286,7 @@ const getOrderBySearchText = async (condition, searchText, userId) => {
                     model: db.Product,
                     attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image'],
                     through: { attributes: ['id', 'quantity', 'price', 'productId', 'orderId'] },
-                    where: Object.keys(productCondition).length > 0 ? productCondition : undefined, 
+                    where: Object.keys(productCondition).length > 0 ? productCondition : undefined,
                 },
             ],
             order: [['id', 'DESC']],
@@ -596,7 +607,11 @@ const cancelOrder = async (data) => {
             };
         }
 
-        await order.update({ order_status: 3 });
+        await order.update({
+            order_status: 3,
+            payment_status: 3,
+            expires_at: null,
+        });
 
         for (const orderProduct of order.Order_Products) {
             const product = orderProduct.Product;
@@ -801,16 +816,16 @@ const getAllOrderInDay = async () => {
 const getAllOrderInWeek = async (startDate) => {
     try {
         const startOfWeek = new Date(startDate);
-        startOfWeek.setHours(0, 0, 0, 0); 
+        startOfWeek.setHours(0, 0, 0, 0);
 
         const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6); 
-        endOfWeek.setHours(23, 59, 59, 999); 
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
 
         let orders = await db.Order.findAll({
             where: {
                 createdAt: {
-                    [Op.between]: [startOfWeek, endOfWeek], 
+                    [Op.between]: [startOfWeek, endOfWeek],
                 },
                 payment_status: 1,
             },
@@ -837,6 +852,84 @@ const getAllOrderInWeek = async (startDate) => {
     }
 };
 
+const feedbackOrder = async (data) => {
+    try {
+        const { orderId, data: feedbackData } = data;
+
+        for (const feedback of feedbackData) {
+            const orderProduct = await db.Order_Product.findOne({
+                where: {
+                    orderId: orderId,
+                    productId: feedback.productId,
+                },
+            });
+
+            if (!orderProduct) {
+                console.log(`Order_Product not found for productId: ${feedback.productId}`);
+                continue;
+            }
+
+            await orderProduct.update({
+                star: feedback.rating,
+                description: feedback.comment,
+                feedbackDate: new Date(),
+            });
+
+            const [count, sum] = await db.Order_Product.findAll({
+                attributes: [
+                    [db.Sequelize.fn('COUNT', db.Sequelize.col('id')), 'count'],
+                    [db.Sequelize.fn('SUM', db.Sequelize.col('star')), 'sum'],
+                ],
+                where: {
+                    productId: feedback.productId,
+                    star: { [db.Sequelize.Op.ne]: null }, 
+                },
+                raw: true,
+            }).then((res) => [res[0].count, res[0].sum]);
+
+            const newStar = count > 0 ? parseFloat((sum / count).toFixed(1)) : feedback.rating;
+
+            // Cập nhật số sao mới vào bảng Product
+            const product = await db.Product.findOne({
+                where: { id: feedback.productId },
+            });
+
+            if (product) {
+                await product.update({ star: newStar });
+            }
+        }
+
+        const order = await db.Order.findOne({
+            where: { id: orderId },
+        });
+
+        if (!order) {
+            return {
+                EM: 'Order not found',
+                EC: 1,
+                DT: '',
+            };
+        }
+
+        await order.update({
+            isFeedback: true,
+        });
+
+        return {
+            EM: 'Feedback successfully',
+            EC: 0,
+            DT: '',
+        };
+    } catch (error) {
+        console.error('Error in feedbackOrder:', error);
+        return {
+            EM: 'Something went wrong with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
 module.exports = {
     createOrder,
     createOrderDetail,
@@ -854,4 +947,5 @@ module.exports = {
     checkRefundOrder,
     getOrderBySearchText,
     ConfirmDeliveredOrder,
+    feedbackOrder,
 };

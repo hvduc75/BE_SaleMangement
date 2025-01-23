@@ -48,7 +48,17 @@ const createNewProducts = async (products) => {
 const getAllProducts = async () => {
     try {
         let products = await db.Product.findAll({
-            attributes: ['id', 'name', 'price', 'sale', 'price_current', 'quantity_current', 'image', 'background'],
+            attributes: [
+                'id',
+                'name',
+                'price',
+                'sale',
+                'price_current',
+                'quantity_current',
+                'image',
+                'background',
+                'star',
+            ],
         });
         return {
             EM: 'Ok',
@@ -69,8 +79,41 @@ const getProductById = async (productId) => {
     try {
         let product = await db.Product.findOne({
             where: { id: productId },
-            attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image', 'background'],
+            attributes: [
+                'id',
+                'name',
+                'price',
+                'price_current',
+                'sale',
+                'quantity_current',
+                'quantity_sold',
+                'image',
+                'background',
+                'star',
+            ],
             include: [
+                {
+                    model: db.Order,
+                    attributes: ['id'],
+                    through: {
+                        model: db.Order_Product,
+                        attributes: [
+                            'id',
+                            'quantity',
+                            'price',
+                            'productId',
+                            'orderId',
+                            'star',
+                            'description',
+                            'feedbackDate',
+                        ],
+                        where: {
+                            star: {
+                                [Op.ne]: null,
+                            },
+                        },
+                    },
+                },
                 {
                     model: db.ProductImage,
                     attributes: ['image'],
@@ -96,6 +139,65 @@ const getProductById = async (productId) => {
     }
 };
 
+const getFeedbacksByProductId = async (productId, starFilter, page, limit) => {
+    try {
+        const offset = (page - 1) * limit;
+
+        let feedbacks = await db.Product.findOne({
+            where: { id: productId },
+            attributes: ['id', 'name', 'star'],
+            include: [
+                {
+                    model: db.Order,
+                    attributes: ['id'],
+                    include: [
+                        {
+                            model: db.User,
+                            attributes: ['id', 'username', 'avatar'],
+                        },
+                    ],
+                    through: {
+                        model: db.Order_Product,
+                        attributes: [
+                            'id',
+                            'quantity',
+                            'price',
+                            'productId',
+                            'orderId',
+                            'star',
+                            'description',
+                            'feedbackDate',
+                        ],
+                        where:
+                            starFilter !== 'null'
+                                ? { star: starFilter }
+                                : {
+                                      star: {
+                                          [Op.ne]: null,
+                                      },
+                                  },
+                    },
+                },
+            ],
+            offset: offset,
+            limit: limit,
+        });
+
+        return {
+            EM: 'Ok',
+            EC: 0,
+            DT: feedbacks,
+        };
+    } catch (error) {
+        console.log(error);
+        return {
+            EM: 'Something went wrong with services',
+            EC: 1,
+            DT: [],
+        };
+    }
+};
+
 const getProductWithPagination = async (page, limit, categoryId) => {
     try {
         limit = parseInt(limit, 10) || 36;
@@ -105,7 +207,17 @@ const getProductWithPagination = async (page, limit, categoryId) => {
             where: whereCondition,
             offset: offset,
             limit: limit,
-            attributes: ['id', 'name', 'price', 'price_current', 'sale', 'quantity_current', 'image', 'background'],
+            attributes: [
+                'id',
+                'name',
+                'price',
+                'price_current',
+                'sale',
+                'quantity_current',
+                'image',
+                'background',
+                'star',
+            ],
             order: [['id', 'DESC']],
         });
 
@@ -235,6 +347,7 @@ const getAllProductWithCondition = async (condition, userId) => {
                     'background',
                     'quantity_current',
                     'quantity_sold',
+                    'star',
                 ],
                 limit: 48,
                 order: [['quantity_sold', 'DESC']],
@@ -257,6 +370,7 @@ const getAllProductWithCondition = async (condition, userId) => {
                             'background',
                             'quantity_current',
                             'quantity_sold',
+                            'star',
                         ],
                         through: { attributes: ['viewNum'] },
                     },
@@ -277,6 +391,7 @@ const getAllProductWithCondition = async (condition, userId) => {
                     'background',
                     'quantity_current',
                     'quantity_sold',
+                    'star',
                 ],
                 order: sequelize.random(),
                 limit: 48,
@@ -445,4 +560,5 @@ module.exports = {
     getProductById,
     getProductsByCategoryId,
     getProductWithSearchText,
+    getFeedbacksByProductId,
 };

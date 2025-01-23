@@ -78,6 +78,7 @@ const initApiRoutes = (app) => {
     router.get('/product/getAllProduct', productController.getAllProducts);
     router.get('/product/getProductById', productController.getProductById);
     router.get('/product/getProductsByCategoryId', productController.getProductsByCategoryId);
+    router.get('/product/getFeedbacksByProductId', productController.getFeedbacksByProductId);
     router.post(
         '/product/create',
         upload.fields([
@@ -132,6 +133,7 @@ const initApiRoutes = (app) => {
     router.put('/order/confirmOrder', orderController.confirmOrder);
     router.put('/order/cancelOrder', orderController.cancelOrder);
     router.put('/order/ConfirmDeliveredOrder', upload.single('image'), orderController.ConfirmDeliveredOrder);
+    router.put('/order/feedbackOrder',  orderController.feedbackOrder);
 
     return app.use('/api/v1', router);
 };

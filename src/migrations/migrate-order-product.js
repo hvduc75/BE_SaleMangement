@@ -20,6 +20,15 @@ module.exports = {
             orderId: {
                 type: Sequelize.INTEGER,
             },
+            star: {
+                type: Sequelize.INTEGER,
+            },
+            description: {
+                type: Sequelize.STRING,
+            },
+            feedbackDate: {
+                type: Sequelize.DATE,
+            },
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE,

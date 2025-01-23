@@ -50,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
             quantity_current: DataTypes.INTEGER,
             quantity_sold: DataTypes.INTEGER,
             categoryId: DataTypes.INTEGER,
+            star: { type: DataTypes.DECIMAL(2, 1), defaultValue: 5 },
         },
         {
             sequelize,
